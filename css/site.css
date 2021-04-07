@@ -1,22 +1,13 @@
 body{
   background:#ffffff;
-
-      font-family: 'Oswald', sans-serif;
-      fill:#575757;
+  font-family: 'Oswald', sans-serif;
+  fill:#575757;
 }
 
-text.statelabel {
-    font-size: 0.8rem;
-    text-anchor:middle;
-    fill:#373737;
-}
-#value-simple{
-  visibility:hidden;
-  display:none;
-}
 #heading{
   display: flex;
 }
+
 #quotes{
   display: flex;
   flex-direction: column;
@@ -125,14 +116,39 @@ h2{
   stroke:none;
 }
 
+
 #legend{
   position: relative;
   padding-left:5%;
   margin-top:5px;
+  margin-bottom:5px;
   font-family: "Noto Sans Display",sans-serif;
   font-size: 0.85em;
   font-weight: 300;
   color: #575757;
+}
+
+.dot {
+  height: 15px;
+  width: 15px;
+  border:#aaa;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.low{
+
+  background-color: #FFC2DB;
+}
+.high{
+
+  background-color: #720017;
+}
+
+.null{
+
+  background-color: #aaa;
 }
 
 
@@ -236,12 +252,12 @@ div.tooltip {
     position:absolute;
     width: auto;
     height: auto;
-    max-width: 40%;
+    max-width: 400px;
     margin-top: -1.25em;
     padding: 0.5em 0.5em;
     font-family: 'Oswald', sans-serif;
     /*white-space: nowrap;*/
-    font-size: 1rem;
+    font-size: 1.5rem;
     font-weight: 300;
     line-height: 1.2;
     color: #04629a;
