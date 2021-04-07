@@ -10,7 +10,7 @@
 <meta charset="utf-8">
 <title>Minimum value by State</title>
 <link rel="stylesheet" href="css/site.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/bootstrap.min.css.map">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 </head>
 <div id="main-wrapper">
@@ -21,7 +21,7 @@
 		</div>
 	</div>
 	<div id=intro><b>Explore the policies put in place by countries! Action the buttons</b> to see how policies are distributed. Mouse over to see the policies' details.</div>
-	<div id="legend">The amount attributed to the policy measures range from <span id="lower"></span> millions of USD <span  class="dot low"></span> to <span id="higher"></span>  millions of USD <span  class="dot high"></span>. Unknown amounts are shown as <span class="dot null"></span>.</div>
+	<div id="legend">The amount attributed to the policy measures range from <span  class="dot low"></span> <span id="lower"></span> millions of USD,  to <span  class="dot high"></span> <span id="higher"></span>  millions of USD. Unknown amounts are shown as <span class="dot null"></span>.</div>
 	<div id="selCountry">
 			<select id="country_dropdown" onchange="updateCouViz(value)">
 				
@@ -29,10 +29,10 @@
 		</div>
     
     <div class="flex-container">
-				<button class="button grey" id="launchButton" type="submit" value="sector" onclick="updateViz(value)"><span class="textbtn">Sector</span></button>
-				<button class="button grey" id="Dimension" type="submit" value="type" onclick="updateViz(value)"><span class="textbtn">Type</span></button>
-				<button class="button grey" id="Dimension" type="submit" value="scope" onclick="updateViz(value)"><span class="textbtn">Scope</span></button>
-				<button class="button grey" id="Dimension" type="submit" value="impact" onclick="updateViz(value)"><span class="textbtn">Impact</span></button>
+				<button class="button grey" id="launchButton" type="submit" value="sector" onclick="updateViz(value)"><span class="textbtn">Policy sector</span></button>
+				<button class="button grey" id="Dimension" type="submit" value="type" onclick="updateViz(value)"><span class="textbtn">Policy type</span></button>
+				<button class="button grey" id="Dimension" type="submit" value="scope" onclick="updateViz(value)"><span class="textbtn">Policy scope</span></button>
+				<button class="button grey" id="Dimension" type="submit" value="impact" onclick="updateViz(value)"><span class="textbtn">Policy impact</span></button>
 		</div>
 	<div id="chart"></div>
 	<img id="OECDLogo" src="img/OECD_20cm.jpg"></img>
@@ -56,12 +56,15 @@ var divAnnotation = d3.select("#chart").append("div")
 let margin = { top: 30, right: 150, bottom: 30, left: 350 },
       width = parseInt(d3.select('#chart').style('width'), 10) - margin.left - margin.right,
       height = 600 - margin.top - margin.bottom,
-	  r = 5,
+	  r = 6,
 	  marginSlider=30;
 	  widthSlider = parseInt(d3.select('#chart').style('width'), 10) - 2*marginSlider;
 	  
-if (width < 450) {
-	r = 3.5;
+if (width < 600) {
+    margin = { top: 30, right: 100, bottom: 30, left: 200 },
+
+      width = parseInt(d3.select('#chart').style('width'), 10) - margin.left - margin.right,
+	r = 4;
 	height = 600 - margin.top - margin.bottom;
 }
 
@@ -112,6 +115,14 @@ let lowest,highest, circle, couValue, buttonValue;
 // Load data.
 const launch = d3.csv("data/test.csv", d3.autoType);
 
+let isoList=[];
+const isolist = d3.csv("data/codeIso.csv", d3.autoType);
+isolist.then(function(data){
+    data.forEach(function(d){
+        console.log(d)
+        isoList.push(d)
+    }); 
+})
 
 // Once data is loaded...
 launch.then(function(data){
@@ -174,21 +185,11 @@ function initiateViz(){
             impact: d.Env_impact_category,
             sector: d.Sector,
             summary: d.Summary_description,
+            infra: d.Infrastructure_relevant,
 			data: []
         }
     })
-    /**	var count=0;
-	nodes.forEach(function(k){
-		alldata.forEach(function(d){
-			if(k.id==d.ISO){
-				k.data[d.Year]=[d.avg,d.inequality];
-			}
-		})
-		count++;
-		if(count==nodes.length){
-			render(val)	;
-		}	
-	})**/
+
     render();
 
 	//	render()
@@ -225,7 +226,9 @@ function initiateViz(){
 				divCircle.transition()
 					.duration(250)
 					.style("opacity", 1);
-				var htmlText = "<b>" + d.srcElement.__data__.summary + "</b>";
+
+				var htmlText = "<b>"+d.srcElement.__data__.country+"</b><br/><i> "+ d.srcElement.__data__.type+"</i><br/><br/>Amount: "+ d.srcElement.__data__.amount+" millions of USD<br/>Infrastructure relevant: "+ d.srcElement.__data__.infra+"<br/><br/><b>"+ d.srcElement.__data__.sector +":</b> " + d.srcElement.__data__.summary + "";
+
 				divCircle.html(htmlText)
 					.style("left", event.pageX - document.body.scrollLeft + "px")
 					.style("top", event.pageY /*- document.body.scrollTop*/ + "px");
@@ -440,16 +443,23 @@ function wrap(text, width) {
 
 function setDropdown(){
    
-	//document.getElementById("country_dropdown").innerHTML = "<option value=\"-\" selected=\"selected\"> - </option>";
 	[...new Set(alldata.map(d => d.Country))].forEach(function(d){
-		
-		var x = document.getElementById("country_dropdown");
-		
-		var option = document.createElement("option");
-		option.value = d;
-		option.innerHTML = d;
+        var countryName="";
+        isoList.forEach(function(k){
+            if(k.ISO==d){
+                countryName=k.country;
+                var x = document.getElementById("country_dropdown");
+                
+                var option = document.createElement("option");
+                option.value = d;
+                option.innerHTML = countryName;
 
-		x.appendChild(option);
+                x.appendChild(option);
+            }
+            
+         })
+		//console.log(countryName)
+		
 	
 	})
 }
