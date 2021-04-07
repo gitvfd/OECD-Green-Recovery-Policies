@@ -112,9 +112,7 @@ var yAxisEl ;
 
 let lowest,highest, circle, couValue, buttonValue;
 
-// Load data.
-const launch = d3.csv("data/test.csv", d3.autoType);
-
+//load country
 let isoList=[];
 const isolist = d3.csv("data/codeIso.csv", d3.autoType);
 isolist.then(function(data){
@@ -123,6 +121,10 @@ isolist.then(function(data){
         isoList.push(d)
     }); 
 })
+
+// Load data.
+const launch = d3.csv("data/test.csv", d3.autoType);
+
 
 // Once data is loaded...
 launch.then(function(data){
