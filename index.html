@@ -49,11 +49,17 @@ var divCircle = d3.select("body").append("div")
 	.attr("class", "tooltip")       
 	.style("opacity", 0);
 
+let textAnnot="<b>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue."
 
 var divAnnotation = d3.select("#chart").append("div") 
 	.attr("class", "annotation")       
 	.style("opacity", 0);
 
+divAnnotation.html(textAnnot)
+
+divAnnotation.transition()
+            .duration(250)
+            .style("opacity", 1);
 
 // Dimensions of chart.
 let margin = { top: 30, right: 150, bottom: 30, left: 350 },
@@ -85,7 +91,7 @@ let svg = d3.select("#chart").append("svg")
     //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 let gAll = svg.append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + ((margin.left+margin.right+width)/2) + "," + (margin.top+height/2) + ")");
 
 let gCountry = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -109,7 +115,7 @@ let color = d3.scaleOrdinal()
 
 
 let colorAll = d3.scaleOrdinal()
-	.domain(["Negative","Positive-others","Mixed","null","Positive-EU",])
+	.domain(["Negative","Positive","Mixed","Total","Positive",])
 	.range(["#586D79","#27B499","#FF7363","#ffffff","#27B499"])
 
 let amountColor=d3.scaleSqrt()
@@ -152,7 +158,6 @@ launch.then(function(data){
     alldata=data
 	lowest = d3.min(data,function(d){return parseFloat(d.Convert_to_USD_millions)});
 	highest = d3.max(data,function(d){return parseFloat(d.Convert_to_USD_millions)});
-    console.log(lowest)
     x.domain([-0.02*highest,0.1*highest])
 	area.domain([lowest,0.33*highest])
     amountColor.domain([lowest,highest])
@@ -170,71 +175,188 @@ function initiateViz(){
     /////////////////////////////////////////
 
 
-        var diameter 
+  let bold = true;
+  let black = false;
+  let shadow = true;
+  let multicolor = true;
+  let hexcolor = "#0099cc";
+  
+  const format = d3.format(",d")
+
+  let diameter ;;
         if(width>=height)
             diameter=height;
         else
             diameter=width;
+  
+  const pack = data => d3.pack()
+    .size([diameter, diameter])
+    .padding(3)
+    (d3.hierarchy(aggregates)
+     .sum(d => d.value)
+     .sort((a, b) => b.value - a.value))
 
-        var bubbleAll = d3.pack(aggregates)
-            .size([diameter, diameter])
-            .padding(1.5);
+  const root = pack(aggregates);
+  let focus = root;
+  let view;
+  
+  let fontsize = d3.scaleOrdinal()
+    .domain([1,3])
+    .range([21,13])
+  
+  function setColorScheme(multi){
+    if (multi) {
+      let color = d3.scaleOrdinal()
+        .range(d3.schemeCategory10)
+      return color;
+    }
+  }
+  
+  //let color = setColorScheme(multicolor);
+  
+  function setCircleColor(obj) {
+  
+    let depth = obj.depth; 
+
+    while (obj.depth >2) { //previouly 1    
+        obj = obj.parent;
+    }
+        
+    if(obj.parent!=null && obj.parent.data.name=="Positive")
+            obj = obj.parent;
+       
+    
+    let newcolor =  d3.hsl(colorAll(obj.data.name)) ;
+    newcolor.l += depth == 1 ? 0 : depth * .05;
+    return newcolor;
+  }
+  
+  function setStrokeColor(obj) {
+    let depth = obj.depth;
+    while (obj.depth > 2) { //previouly 1
+      obj = obj.parent;
+    }
+
+    if(obj.parent!=null && obj.parent.data.name=="Positive")
+            obj = obj.parent;
+       
+    let strokecolor = /**multicolor ?**/ d3.hsl(colorAll(obj.data.name)) /**: d3.hsl(hexcolor)**/;
+    return strokecolor;
+  }
+  
+  gAll
+      .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`).style("cursor", "pointer")
+      .on("click", () => zoom(root));
+
+  const nodeAll= gAll.append("g")
+    .selectAll("circle")
+    .data(root.descendants()/*.slice(1)*/)
+    .enter().append("circle")
+      .attr("fill", setCircleColor)
+      .attr("stroke", setStrokeColor)
+      .attr("pointer-events", d => !d.children ? "none" : null)
+      .on("mouseover", function() { d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); })
+      .on("mouseout", function() { d3.select(this).attr("stroke", setStrokeColor); })
+      .on("click", function(d){ return focus !== d && (zoom(d.srcElement.__data__), event.stopPropagation())});
+
+  const labelAll = gAll.append("g")
+      .style("fill", function() {
+        return black ? "black" : "white";
+      })
+      .style("text-shadow", function(){
+        if (shadow) {
+          return black ? "2px 2px 0px white" : "2px 2px 0px black";
+        } else {
+          return "none";
+        }
+      })
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+    .selectAll("text")
+    .data(root.descendants())
+    .enter().append("text")
+      .style("fill-opacity", d => d.parent === root ? 1 : 0)
+      .style("display", d => d.parent === root ? "inline" : "none")
+      .style("font", d => fontsize(d.depth) + "px sans-serif")
+      .style("font-weight", function() {
+        return bold ? "bold" : "normal";
+      })
+      .text(function(d){ let label1; if(d.data.value==0) label1="" ; else label1=d.data.name; return label1;});
+     // .text(d => d.data.name );
+     
+  const labelAll2 = gAll.append("g")
+      .style("fill", function() {
+        return black ? "black" : "white";
+      })
+      .style("text-shadow", function(){
+        if (shadow) {
+          return black ? "2px 2px 0px white" : "2px 2px 0px black";
+        } else {
+          return "none";
+        }
+      })
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+    .selectAll("text")
+    .data(root.descendants())
+    .enter().append("text")
+      .style("fill-opacity", d => d.parent === root ? 1 : 0)
+      .style("display", d => d.parent === root ? "inline" : "none")
+      .style("font", d => fontsize(d.depth) + "px sans-serif")
+      .style("font-weight", function() {
+        return bold ? "bold" : "normal";
+      })
+      .text(function(d){ let label2; console.log(d.data.value==0);if(d.data.value==0) label2 = "" ;else label2= format(d.data.value) + " bn USD"; return label2;});
+      //.text(d => format(d.data.value) + " bn USD");
+
+  zoomTo([root.x, root.y, root.r * 2]);
+
+  function zoomTo(v) {
+    const k = diameter / v[2];
+
+    view = v;
+
+    labelAll.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k + fontsize(d.depth)/4})`);
+    labelAll2.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]+ fontsize(d.depth)/k) * k + fontsize(d.depth)/4})`);
+    nodeAll.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
+    nodeAll.attr("r", d => d.r * k);
+  }
+
+  function zoom(d) {
+
+divAnnotation.transition()
+            .duration(250)
+            .style("opacity", 0);
+    const focus0 = focus;
+    
+    focus = d;
+
+    const transition = gAll.transition()
+        .duration(event.altKey ? 7500 : 750)
+        .tween("zoom", d => {
+          const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
+          return t => zoomTo(i(t));
+        });
+
+    labelAll
+      .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
+      .transition(transition)
+        .style("fill-opacity", d => d.parent === focus ? 1 : 0)
+        .on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
+        .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
 
 
-        var nodesAll = d3.hierarchy(aggregates)
-            .sum(function(d) { return d.value; });
+    labelAll2
+      .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
+      .transition(transition)
+        .style("fill-opacity", d => d.parent === focus ? 1 : 0)
+        .on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
+        .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
+  }
 
-        var nodeAll = gAll.selectAll(".bubble")
-            .data(bubbleAll(nodesAll).descendants())
-            .enter()
-            .filter(function(d){
-                return  !d.children
-            })
-            .append("g")
-        .attr("class", "nodAll")
-            .attr("transform", function(d) {
-                return "translate(" + d.x + "," + d.y + ")";
-            });
 
-        nodeAll.append("title")
-            .text(function(d) {
-                return d.name + ": " + d.value;
-            });
 
-        nodeAll.append("circle")
-            .attr("r", function(d) {
-                return d.r;
-            })
-            .style("fill", function(d,i) {
-                return colorAll(d.data.name);
-            });
 
-        nodeAll.append("text")
-            .attr("dy", ".2em")
-            .style("text-anchor", "middle")
-            .text(function(d) {
-                return d.data.name.substring(0, d.r / 3);
-            })
-            .attr("font-family", "sans-serif")
-            .attr("font-size", function(d){
-                return d.r/4;
-            })
-            .attr("fill", "white");
-
-        nodeAll.append("text")
-            .attr("dy", "1.3em")
-            .style("text-anchor", "middle")
-            .text(function(d) {
-                return d.data.value+ " USD billion";
-            })
-            .attr("font-family",  "Gill Sans", "Gill Sans MT")
-            .attr("font-size", function(d){
-                return d.r/5;
-            })
-            .attr("fill", "white");
-
-        /*d3.select(self.frameElement)
-            .style("height", diameter + "px");*/
 
 
     /////////////////////////////////////////
@@ -373,6 +495,9 @@ function initiateViz(){
 }
 function updateViz(value){
 
+divAnnotation.transition()
+            .duration(250)
+            .style("opacity", 0);
     //update variables
     buttonValue=value;
    
@@ -471,6 +596,10 @@ function updateViz(value){
 
 function updateCouViz(value){
 
+divAnnotation.transition()
+            .duration(250)
+            .style("opacity", 0);
+            
 	//update variables
      couValue = value;
 

@@ -304,12 +304,12 @@ div.tooltip {
 }
 #chart{
   position:relative;
-  background-color:#dde3e7;
+  background-color:/*#dde3e7*/#ffffff;
   z-index:21
 }
 div.annotation {
     position:absolute;
-    top: 25%;left:5%;
+    top: 2.5%;left:5%;
     width: auto;
     height: auto;
     max-width: 40%;
