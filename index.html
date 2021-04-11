@@ -181,7 +181,7 @@ function initiateViz(){
   let multicolor = true;
   let hexcolor = "#0099cc";
   
-  const format = d3.format(",d")
+  const format = d3.format(".2f")
 
   let diameter ;;
         if(width>=height)
@@ -599,7 +599,7 @@ function updateCouViz(value){
 divAnnotation.transition()
             .duration(250)
             .style("opacity", 0);
-            
+
 	//update variables
      couValue = value;
 
