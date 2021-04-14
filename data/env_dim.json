@@ -1,0 +1,39 @@
+{"name":"Total","value":"",
+    "children":
+    [{"name":"Climate Mitigation","value":"90",
+        "children":[
+            {"name":"Positive","value":"46"},
+            {"name":"Negative & Mixed","value":"44"}
+        ]},
+        {"name":"Climate Adaptation","value":"3",
+        "children":[
+            {"name":"Positive","value":"2"},
+            {"name":"Negative & Mixed","value":"1"}
+        ]},
+        {"name":"Air pollution ","value":"37",
+        "children":[
+            {"name":"Positive","value":"17"},
+            {"name":"Negative & Mixed","value":"20"}
+        ]},
+        {"name":"Biodiversity","value":"9",
+        "children":[
+            {"name":"Positive","value":"4"},
+            {"name":"Negative & Mixed","value":"5"}
+        ]},
+        {"name":"Water","value":"6",
+        "children":[
+            {"name":"Positive","value":"5"},
+            {"name":"Negative & Mixed","value":"1"}
+        ]},
+        {"name":"Waste & recycling","value":"2",
+        "children":[
+            {"name":"Positive","value":"2"},
+            {"name":"Negative & Mixed","value":"0"}
+        ]},
+        {"name":"Other","value":"18",
+        "children":[
+            {"name":"Positive","value":"5"},
+            {"name":"Negative & Mixed","value":"13"}
+        ]}
+    ]
+}

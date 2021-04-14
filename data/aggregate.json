@@ -1,4 +1,4 @@
-{"name":"Total",
+{"name":"Total","value":"675.4919",
     "children":
     [{"name":"Positive","value":"323.11392536028",
         "children":[
@@ -11,9 +11,9 @@
             {"name":"Agriculture","value":"11.2923210436983"},
             {"name":"Forestry","value":"1.86693395694897"},
             {"name":"Waste management","value":"2.01571395687582"},
-            {"name":"Mutilple or other","value":"106.558380203595"}
+            {"name":"Multiple or other","value":"106.558380203595"}
         ]
-        },{"name":"Negative","value":"352.378286841416",
+        },{"name":"Negative & Mixed","value":"352.378286841416",
             "children":[
                 {"name":"Negative","value":"180.010106345521",
                 "children":[
@@ -26,7 +26,7 @@
                     {"name":"Agriculture","value":"0"},
                     {"name":"Forestry","value":"0"},
                     {"name":"Waste management","value":"0"},
-                    {"name":"Mutilple or other","value":"35.4434253292378"}
+                    {"name":"Multiple or other","value":"35.4434253292378"}
                 ]},
                 {"name":"Mixed","value":"172.368180495895",
                     "children":[
@@ -39,7 +39,7 @@
                         {"name":"Agriculture","value":"1.96756509781651"},
                         {"name":"Forestry","value":"0.0229039511730871"},
                         {"name":"Waste management","value":"0"},
-                        {"name":"Mutilple or other","value":"104.361474392947"}
+                        {"name":"Multiple or other","value":"104.361474392947"}
                 ]}
             ]
         

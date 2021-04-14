@@ -27,12 +27,14 @@
 				
 			</select> ← PICK A COUNTRY TO EXPLORE ITS POLICIES
 		</div>
+     <div id="selectorButtonsMain" class="flex-container">
+				<button class="button2 grey" id="launchButton" type="submit" value="agg" onclick="updateAllView(value)"><span class="textbtn">Policy amount</span></button>
+				<button class="button2 grey" id="Dimension" type="submit" value="env" onclick="updateAllView(value)"><span class="textbtn">Fundings impacting environmental dimensions</span></button>
+			</div>
     
     <div id="selectorButtons" class="flex-container">
-				<!--<button class="button grey" id="Dimension" type="submit" value="sector" onclick="mainViz(value)"><span class="textbtn">main viz</span></button>-->
 				<button class="button grey" id="launchButton" type="submit" value="sector" onclick="updateViz(value)"><span class="textbtn">Policy sector</span></button>
 				<button class="button grey" id="Dimension" type="submit" value="type" onclick="updateViz(value)"><span class="textbtn">Policy type</span></button>
-				<!--<button class="button grey" id="Dimension" type="submit" value="scope" onclick="updateViz(value)"><span class="textbtn">Policy scope</span></button>-->
 				<button class="button grey" id="Dimension" type="submit" value="impact" onclick="updateViz(value)"><span class="textbtn">Policy impact</span></button>
 		</div>
 	<div id="chart"></div>
@@ -93,6 +95,9 @@ let svg = d3.select("#chart").append("svg")
 let gAll = svg.append("g")
     .attr("transform", "translate(" + ((margin.left+margin.right+width)/2) + "," + (margin.top+height/2) + ")");
 
+let gEnv = svg.append("g")
+    .attr("transform", "translate(" + ((margin.left+margin.right+width)/2) + "," + (margin.top+height/2) + ")");
+
 let gCountry = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -115,8 +120,8 @@ let color = d3.scaleOrdinal()
 
 
 let colorAll = d3.scaleOrdinal()
-	.domain(["Negative","Positive","Mixed","Total","Positive",])
-	.range(["#586D79","#27B499","#FF7363","#ffffff","#27B499"])
+	.domain(["Negative","Negative & Mixed","Positive","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
+	.range(["#586D79","#586D79","#27B499","#FF7363","#ffffff","#979797","#979797","#979797","#979797","#979797","#979797","#979797"])
 
 let amountColor=d3.scaleSqrt()
 	.range(["#FFC2DB","#720017"])
@@ -133,18 +138,21 @@ let lowest,highest, circle, couValue, buttonValue;
 
 //load country
 let isoList=[];
-const isolist = d3.csv("data/codeIso.csv", d3.autoType);
-isolist.then(function(data){
-    data.forEach(function(d){
-        isoList.push(d)
-    }); 
-})
+var countISO=0;
+
 
 // Load aggregates
 let aggregates=[];
 const aggregate = d3.json("data/aggregate.json", d3.autoType);
 aggregate.then(function(data){
     aggregates=data;
+    }); 
+
+// Load envdim
+let envdims=[];
+const envdim = d3.json("data/env_dim.json", d3.autoType);
+envdim.then(function(data){
+    envdims=data;
     }); 
 
 
@@ -156,18 +164,29 @@ const launch = d3.csv("data/test3.csv", d3.autoType);
 // Once data is loaded...
 launch.then(function(data){
     alldata=data
-	lowest = d3.min(data,function(d){return parseFloat(d.Convert_to_USD_millions)});
-	highest = d3.max(data,function(d){return parseFloat(d.Convert_to_USD_millions)});
+	  lowest = d3.min(data,function(d){return parseFloat(d.Convert_to_USD_millions)});
+	  highest = d3.max(data,function(d){return parseFloat(d.Convert_to_USD_millions)});
     x.domain([-0.02*highest,0.1*highest])
-	area.domain([lowest,0.33*highest])
+	  area.domain([lowest,0.33*highest])
     amountColor.domain([lowest,highest])
-    setDropdown();
-	initiateViz();
+
+    const isolist = d3.csv("data/codeIso.csv", d3.autoType);
+    isolist.then(function(data){
+        data.forEach(function(d){
+            isoList.push(d)
+            countISO++;
+            if(countISO==data.length)
+              setDropdown();
+        }); 
+    })
+
+	  initiateViz();
 })
 
 function initiateViz(){
 
     buttonValue='sector';
+    buttonEnvValue="agg"
     couValue='All';
 
     /////////////////////////////////////////
@@ -196,13 +215,25 @@ function initiateViz(){
      .sum(d => d.value)
      .sort((a, b) => b.value - a.value))
 
+  
+  const packEnv = data => d3.pack()
+    .size([diameter, diameter])
+    .padding(3)
+    (d3.hierarchy(envdims)
+     .sum(d => d.value)
+     .sort((a, b) => b.value - a.value))
+
   const root = pack(aggregates);
+  const rootEnv = packEnv(envdims);
+
   let focus = root;
+  let focusEnv=rootEnv;
+
   let view;
   
   let fontsize = d3.scaleOrdinal()
     .domain([1,3])
-    .range([21,13])
+    .range([24,16])
   
   function setColorScheme(multi){
     if (multi) {
@@ -255,9 +286,26 @@ function initiateViz(){
       .attr("fill", setCircleColor)
       .attr("stroke", setStrokeColor)
       .attr("pointer-events", d => !d.children ? "none" : null)
-      .on("mouseover", function() { d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); })
-      .on("mouseout", function() { d3.select(this).attr("stroke", setStrokeColor); })
+      .on("mouseover", function(k) { 
+        d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
+
+				divCircle.transition()
+					.duration(250)
+					.style("opacity", 1);
+          var htmlText = "<b>"+k.srcElement.__data__.data.name + "</b><br/> Amount in USD Billion: <i>" + format(k.srcElement.__data__.data.value) + "</i>";
+
+          divCircle.html(htmlText)
+            .style("left", event.pageX - document.body.scrollLeft + "px")
+            .style("top", event.pageY /*- document.body.scrollTop*/ + "px");
+      })
+      .on("mouseout", function() { 
+        d3.select(this).attr("stroke", setStrokeColor); 
+				divCircle.transition()
+					.duration(100)
+					.style("opacity", 0);
+        })
       .on("click", function(d){ return focus !== d && (zoom(d.srcElement.__data__), event.stopPropagation())});
+
 
   const labelAll = gAll.append("g")
       .style("fill", function() {
@@ -306,7 +354,7 @@ function initiateViz(){
       .style("font-weight", function() {
         return bold ? "bold" : "normal";
       })
-      .text(function(d){ let label2; console.log(d.data.value==0);if(d.data.value==0) label2 = "" ;else label2= format(d.data.value) + " bn USD"; return label2;});
+      .text(function(d){ let label2;if(d.data.value==0) label2 = "" ;else label2= format(d.data.value) + " bn USD"; return label2;});
       //.text(d => format(d.data.value) + " bn USD");
 
   zoomTo([root.x, root.y, root.r * 2]);
@@ -324,7 +372,7 @@ function initiateViz(){
 
   function zoom(d) {
 
-divAnnotation.transition()
+    divAnnotation.transition()
             .duration(250)
             .style("opacity", 0);
     const focus0 = focus;
@@ -355,9 +403,140 @@ divAnnotation.transition()
   }
 
 
+    /////////////////////////////////////////
+    /////////// Env charts ////////////
+    /////////////////////////////////////////
+
+  gEnv
+      .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`).style("cursor", "pointer")
+      .on("click", () => zoomEnv(rootEnv));
+
+  const nodeEnv= gEnv.append("g")
+    .selectAll("circle")
+    .data(rootEnv.descendants()/*.slice(1)*/)
+    .enter().append("circle")
+      .attr("fill", setCircleColor)
+      .attr("stroke", setStrokeColor)
+      .attr("pointer-events", d => !d.children ? "none" : null)
+      .on("mouseover", function(k) { 
+        d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
+
+				divCircle.transition()
+					.duration(250)
+					.style("opacity", 1);
+          var htmlText = "<b>"+k.srcElement.__data__.data.name + "</b><br/> Proportion of total funding allocated to measures: <i>" + (k.srcElement.__data__.data.value) + "%</i>";
+
+          divCircle.html(htmlText)
+            .style("left", event.pageX - document.body.scrollLeft + "px")
+            .style("top", event.pageY /*- document.body.scrollTop*/ + "px");
+      })
+      .on("mouseout", function() { 
+        d3.select(this).attr("stroke", setStrokeColor); 
+				divCircle.transition()
+					.duration(100)
+					.style("opacity", 0);
+        })
+      .on("click", function(d){ console.log(d);return focusEnv !== d && (zoomEnv(d.srcElement.__data__), event.stopPropagation())});
 
 
+  const labelEnv = gEnv.append("g")
+      .style("fill", function() {
+        return black ? "black" : "white";
+      })
+      .style("text-shadow", function(){
+        if (shadow) {
+          return black ? "2px 2px 0px white" : "2px 2px 0px black";
+        } else {
+          return "none";
+        }
+      })
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+    .selectAll("text")
+    .data(rootEnv.descendants())
+    .enter().append("text")
+      .style("fill-opacity", d => d.parent === rootEnv ? 1 : 0)
+      .style("display", d => d.parent === rootEnv ? "inline" : "none")
+      .style("font", d => fontsize(d.depth) + "px sans-serif")
+      .style("font-weight", function() {
+        return bold ? "bold" : "normal";
+      })
+      .text(function(d){ let label1; console.log(d);/*if(d.data.value==0) label1="" ; else */label1=d.data.name; return label1;});
+     // .text(d => d.data.name );
+     
+  const labelEnv2 = gEnv.append("g")
+      .style("fill", function() {
+        return black ? "black" : "white";
+      })
+      .style("text-shadow", function(){
+        if (shadow) {
+          return black ? "2px 2px 0px white" : "2px 2px 0px black";
+        } else {
+          return "none";
+        }
+      })
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+    .selectAll("text")
+    .data(rootEnv.descendants())
+    .enter().append("text")
+      .style("fill-opacity", d => d.parent === rootEnv ? 1 : 0)
+      .style("display", d => d.parent === rootEnv ? "inline" : "none")
+      .style("font", d => fontsize(d.depth) + "px sans-serif")
+      .style("font-weight", function() {
+        return bold ? "bold" : "normal";
+      })
+      .text(function(d){ let label2;/*if(d.data.value==0) label2 = "" ;else */label2= (d.data.value) + "%"; return label2;});
+      //.text(d => format(d.data.value) + " bn USD");
 
+  zoomToEnv([rootEnv.x, rootEnv.y, rootEnv.r * 2]);
+
+  function zoomToEnv(v) {
+    const k = diameter / v[2];
+
+    view = v;
+
+    labelEnv.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k + fontsize(d.depth)/4})`);
+    labelEnv2.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]+ fontsize(d.depth)/k) * k + fontsize(d.depth)/4})`);
+    nodeEnv.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
+    nodeEnv.attr("r", d => d.r * k);
+  }
+
+  function zoomEnv(d) {
+
+    divAnnotation.transition()
+            .duration(250)
+            .style("opacity", 0);
+
+    const focus0 = focusEnv;
+    
+    focusEnv = d;
+
+    const transitionEnv = gEnv.transition()
+        .duration(event.altKey ? 7500 : 750)
+        .tween("zoom", d => {
+          const i = d3.interpolateZoom(view, [focusEnv.x, focusEnv.y, focusEnv.r * 2]);
+          return t => zoomToEnv(i(t));
+        });
+
+    labelEnv
+      .filter(function(d) { return d.parent === focusEnv || this.style.display === "inline"; })
+      .transition(transitionEnv)
+        .style("fill-opacity", d => d.parent === focusEnv ? 1 : 0)
+        .on("start", function(d) { if (d.parent === focusEnv) this.style.display = "inline"; })
+        .on("end", function(d) { if (d.parent !== focusEnv) this.style.display = "none"; });
+
+
+    labelEnv2
+      .filter(function(d) { return d.parent === focusEnv || this.style.display === "inline"; })
+      .transition(transitionEnv)
+        .style("fill-opacity", d => d.parent === focusEnv ? 1 : 0)
+        .on("start", function(d) { if (d.parent === focusEnv) this.style.display = "inline"; })
+        .on("end", function(d) { if (d.parent !== focusEnv) this.style.display = "none"; });
+  }
+
+
+    gEnv.attr("display","none")
 
     /////////////////////////////////////////
     /////////// country charts //////////////
@@ -491,24 +670,61 @@ divAnnotation.transition()
 		});
     }
 
-    gCountry.attr("opacity",0)
+    gCountry.append("text")
+    .attr("x",x(-0.015*highest)-20)
+    .attr("y",0)
+    .text("undertermined amount")
+
+    //gCountry.attr("opacity",0)
+    gCountry.attr("display","none")
+}
+
+function updateAllView(value){
+  buttonEnvValue=value;
+ if(value=="agg"){
+   gAll.attr("display","block")
+   gEnv.attr("display","none")
+
+ }
+ else{
+   gAll.attr("display","none")
+   gEnv.attr("display","block")
+ }
+
 }
 function updateViz(value){
 
-divAnnotation.transition()
+    divAnnotation.transition()
             .duration(250)
             .style("opacity", 0);
+
     //update variables
     buttonValue=value;
    
     if(couValue=="all"){
-        gCountry.attr("opacity",0)
-        gAll.attr("opacity",1)
-        document.getElementById("selectorButtons").style.visibility = "hidden";
+
+        gCountry.attr("display","none")
+
+      if(buttonEnvValue=="agg"){
+        gAll.attr("display","block")
+        gEnv.attr("display","none")
+      }else{
+
+        gAll.attr("display","none")
+        gEnv.attr("display","block")
+      }
+
+
+        document.getElementById("selectorButtons").style.display = "none";
+        document.getElementById("selectorButtonsMain").style.display = "flex";
     }else{
-        gCountry.attr("opacity",1)
-        gAll.attr("opacity",0)
-        document.getElementById("selectorButtons").style.visibility = "visible";
+      
+        gCountry.attr("display","block")
+        gAll.attr("display","none")
+        gEnv.attr("display","none")
+
+        document.getElementById("selectorButtons").style.display = "flex";
+        document.getElementById("selectorButtonsMain").style.display = "none";
     
 
 
@@ -555,22 +771,7 @@ divAnnotation.transition()
                 .ease(d3.easeLinear)
 			    .attr("r", d => d.r);
 
-        } else if(value=="scope"){
-	        y.domain([...new Set(alldata.map(d => d.Scope))])
-            yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
-           
-            simulation
-                .force("x", d3.forceX(d => d.x))//.strength(strengthX))
-                .force("y", d3.forceY(d => (y(d.scope)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2));
-
-            circle
-                .transition()
-                .duration(time_trans)
-                .ease(d3.easeLinear)
-			    .attr("r", d => d.r);
-
-        } else if(value=="impact"){
+        }  else if(value=="impact"){
 	        y.domain([...new Set(alldata.map(d => d.Env_impact_category))])
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
@@ -604,15 +805,34 @@ divAnnotation.transition()
      couValue = value;
 
     if(couValue=="all"){
-        gCountry.attr("opacity",0)
-        gAll.attr("opacity",1)
+        /*gCountry.attr("opacity",0)
+        gAll.attr("opacity",1)*/
 
-        document.getElementById("selectorButtons").style.visibility = "hidden";
+        gCountry.attr("display","none")
+        
+      if(buttonEnvValue=="agg"){
+        gAll.attr("display","block")
+        gEnv.attr("display","none")
+      }else{
+
+        gAll.attr("display","none")
+        gEnv.attr("display","block")
+      }
+
+        document.getElementById("selectorButtons").style.display = "none";
+        document.getElementById("selectorButtonsMain").style.display = "flex";
     }else{
 
-        gCountry.attr("opacity",1)
-        gAll.attr("opacity",0)
-        document.getElementById("selectorButtons").style.visibility = "visible";
+        /*gCountry.attr("opacity",1)
+        gAll.attr("opacity",0)*/
+
+        gCountry.attr("display","block")
+        gAll.attr("display","none")
+        gEnv.attr("display","none")
+
+       
+        document.getElementById("selectorButtons").style.display = "flex";
+        document.getElementById("selectorButtonsMain").style.display = "none";
 
 		nodes.forEach(function(o,i) {
             if (o.country!=couValue)
@@ -738,6 +958,14 @@ function setDropdown(){
 d3.selectAll(".button.grey")
     .on("click", function () {
         d3.selectAll(".button.grey")
+            .style("background-color", "#e6ebe9").style("color","#0b1e2d")
+        d3.select(this)
+            .style("background-color", "#04629a").style("color", "#e6ebe9")
+    })
+
+d3.selectAll(".button2.grey")
+    .on("click", function () {
+        d3.selectAll(".button2.grey")
             .style("background-color", "#e6ebe9").style("color","#0b1e2d")
         d3.select(this)
             .style("background-color", "#04629a").style("color", "#e6ebe9")
