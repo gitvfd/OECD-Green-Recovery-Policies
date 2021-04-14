@@ -28,8 +28,8 @@
 			</select> ← PICK A COUNTRY TO EXPLORE ITS POLICIES
 		</div>
      <div id="selectorButtonsMain" class="flex-container">
-				<button class="button2 grey" id="launchButton" type="submit" value="agg" onclick="updateAllView(value)"><span class="textbtn">Policy amount</span></button>
-				<button class="button2 grey" id="Dimension" type="submit" value="env" onclick="updateAllView(value)"><span class="textbtn">Fundings impacting environmental dimensions</span></button>
+				<button class="button2 grey" id="launchButton" type="submit" value="agg" onclick="updateAllView(value)"><span class="textbtn">Funding allocated according to environmental categorisation</span></button>
+				<button class="button2 grey" id="Dimension" type="submit" value="env" onclick="updateAllView(value)"><span class="textbtn">Share of fundings impacting environmental dimensions</span></button>
 			</div>
     
     <div id="selectorButtons" class="flex-container">
@@ -200,7 +200,7 @@ function initiateViz(){
   let multicolor = true;
   let hexcolor = "#0099cc";
   
-  const format = d3.format(".2f")
+  const format = d3.format(".0f")
 
   let diameter ;;
         if(width>=height)
@@ -285,7 +285,7 @@ function initiateViz(){
     .enter().append("circle")
       .attr("fill", setCircleColor)
       .attr("stroke", setStrokeColor)
-      .attr("pointer-events", d => !d.children ? "none" : null)
+      //.attr("pointer-events", d => !d.children ? "none" : null)
       .on("mouseover", function(k) { 
         d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
 
@@ -417,7 +417,7 @@ function initiateViz(){
     .enter().append("circle")
       .attr("fill", setCircleColor)
       .attr("stroke", setStrokeColor)
-      .attr("pointer-events", d => !d.children ? "none" : null)
+      //.attr("pointer-events", d => !d.children ? "none" : null)
       .on("mouseover", function(k) { 
         d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
 
@@ -436,7 +436,7 @@ function initiateViz(){
 					.duration(100)
 					.style("opacity", 0);
         })
-      .on("click", function(d){ console.log(d);return focusEnv !== d && (zoomEnv(d.srcElement.__data__), event.stopPropagation())});
+      .on("click", function(d){ return focusEnv !== d && (zoomEnv(d.srcElement.__data__), event.stopPropagation())});
 
 
   const labelEnv = gEnv.append("g")
@@ -461,7 +461,7 @@ function initiateViz(){
       .style("font-weight", function() {
         return bold ? "bold" : "normal";
       })
-      .text(function(d){ let label1; console.log(d);/*if(d.data.value==0) label1="" ; else */label1=d.data.name; return label1;});
+      .text(function(d){ let label1; /*if(d.data.value==0) label1="" ; else */label1=d.data.name; return label1;});
      // .text(d => d.data.name );
      
   const labelEnv2 = gEnv.append("g")
@@ -670,12 +670,44 @@ function initiateViz(){
 		});
     }
 
+gCountry.append("svg:image")
+		.attr('x', function(){
+			if(width<750)
+			 return 0.75*width
+			else
+			 return 0.9*width
+		})
+		.attr('y', -20)
+		.attr('width', 40)
+		.attr("xlink:href", "img/arrow-right.svg")
+
+	gCountry.append("text")
+		//.attr("x", 0.05*width+30)
+		.attr('y', 5)
+		.attr("x", function(){
+			if(width<750)
+			 return 0.85*width
+			else
+			 return 0.95*width
+		})
+		.attr("text-anchor", "start")
+		.style("font-weight",900)
+		.text("Higher amount")
+
     gCountry.append("text")
     .attr("x",x(-0.015*highest)-20)
-    .attr("y",0)
-    .text("undertermined amount")
-
+    .attr("y",-8)
+		.attr("text-anchor", "start")
+		.style("font-weight",900)
+    .text("Unknown");
+gCountry.append("text")
+    .attr("x",x(-0.015*highest)-20)
+    .attr("y",5)
+		.style("font-weight",900)
+		.attr("text-anchor", "start")
+    .text("amount")
     //gCountry.attr("opacity",0)
+
     gCountry.attr("display","none")
 }
 
@@ -910,6 +942,7 @@ divAnnotation.transition()
 
 function wrap(text, width) {
   text.each(function() {
+    console.log(this)
     var text = d3.select(this),
         words = text.text().split(/\s+/).reverse(),
         word,
