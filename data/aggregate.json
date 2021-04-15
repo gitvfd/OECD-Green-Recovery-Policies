@@ -1,55 +1,55 @@
-{"name":"Total","value":"885",
+{"name":"The Covid-19 related spendings","value":"14000",
     "children":
-    [{"name":"Positive","value":"562",
-        "children":[
-
-            {"name":"Positive","value":"323",
-
-                "children":[
-                    {"name":"Energy","value":"87.9087064126526"},
-                    {"name":"Aviation","value":"1.42233183948628"},
-                    {"name":"Ground transport","value":"68.009320048198"},
-                    {"name":"Maritime transport","value":"1.51136019656202"},
-                    {"name":"Heavy industry","value":"11.5759135396853"},
-                    {"name":"Buildings","value":"30.9529441625774"},
-                    {"name":"Agriculture","value":"11.2923210436983"},
-                    {"name":"Forestry","value":"1.86693395694897"},
-                    {"name":"Waste management","value":"2.01571395687582"},
-                    {"name":"Multiple or other","value":"106.558380203595"}
-                ]
-            }
-            ,
-            {"name":"Positive (NGEU-30)","value":"239"}
-        ]
-        },{"name":"Negative & Mixed","value":"352",
+    [{"name":"Positive impact","value":"562",
             "children":[
-                {"name":"Negative","value":"180",
-                "children":[
-                    {"name":"Energy","value":"38.1620248776992"},
-                    {"name":"Aviation","value":"33.3075360688155"},
-                    {"name":"Ground transport","value":"7.47822663696037"},
-                    {"name":"Maritime transport","value":"0.0273461897386399"},
-                    {"name":"Heavy industry","value":"65.5915472430699"},
-                    {"name":"Buildings","value":"0"},
-                    {"name":"Agriculture","value":"0"},
-                    {"name":"Forestry","value":"0"},
-                    {"name":"Waste management","value":"0"},
-                    {"name":"Multiple or other","value":"35.4434253292378"}
-                ]},
-                {"name":"Mixed","value":"172",
+
+                {"name":"Positive","value":"323",
+
                     "children":[
-                        {"name":"Energy","value":"18.1871364928465"},
-                        {"name":"Aviation","value":"11.2472231989567"},
-                        {"name":"Ground transport","value":"26.5448537440053"},
-                        {"name":"Maritime transport","value":"0.0228803805272894"},
-                        {"name":"Heavy industry","value":"0.0110266894107419"},
-                        {"name":"Buildings","value":"10.0031165482117"},
-                        {"name":"Agriculture","value":"1.96756509781651"},
-                        {"name":"Forestry","value":"0.0229039511730871"},
-                        {"name":"Waste management","value":"0"},
-                        {"name":"Multiple or other","value":"104.361474392947"}
-                ]}
+                        {"name":"Energy","value":"87.9087064126526"},
+                        {"name":"Aviation","value":"1.42233183948628"},
+                        {"name":"Ground transport","value":"68.009320048198"},
+                        {"name":"Maritime transport","value":"1.51136019656202"},
+                        {"name":"Heavy industry","value":"11.5759135396853"},
+                        {"name":"Buildings","value":"30.9529441625774"},
+                        {"name":"Agriculture","value":"11.2923210436983"},
+                        {"name":"Forestry","value":"1.86693395694897"},
+                        {"name":"Waste management","value":"2.01571395687582"},
+                        {"name":"Multiple or other","value":"106.558380203595"}
+                    ]
+                }
+                ,
+                {"name":"Positive (NGEU-30)","value":"239"}
             ]
-        
-    }]
-}
+            },{"name":"Negative & Mixed impact","value":"352",
+                "children":[
+                    {"name":"Negative","value":"180",
+                    "children":[
+                        {"name":"Energy","value":"38.1620248776992"},
+                        {"name":"Aviation","value":"33.3075360688155"},
+                        {"name":"Ground transport","value":"7.47822663696037"},
+                        {"name":"Maritime transport","value":"0.0273461897386399"},
+                        {"name":"Heavy industry","value":"65.5915472430699"},
+                        {"name":"Buildings","value":"0"},
+                        {"name":"Agriculture","value":"0"},
+                        {"name":"Forestry","value":"0"},
+                        {"name":"Waste management","value":"0"},
+                        {"name":"Multiple or other","value":"35.4434253292378"}
+                    ]},
+                    {"name":"Mixed","value":"172",
+                        "children":[
+                            {"name":"Energy","value":"18.1871364928465"},
+                            {"name":"Aviation","value":"11.2472231989567"},
+                            {"name":"Ground transport","value":"26.5448537440053"},
+                            {"name":"Maritime transport","value":"0.0228803805272894"},
+                            {"name":"Heavy industry","value":"0.0110266894107419"},
+                            {"name":"Buildings","value":"10.0031165482117"},
+                            {"name":"Agriculture","value":"1.96756509781651"},
+                            {"name":"Forestry","value":"0.0229039511730871"},
+                            {"name":"Waste management","value":"0"},
+                            {"name":"Multiple or other","value":"104.361474392947"}
+                    ]}
+                ]
+            
+        },
+    {"name":"Total spent on COVID","value":"14000"}]}

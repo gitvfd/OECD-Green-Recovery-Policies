@@ -10,7 +10,7 @@
             {"name":"Positive","value":"2"},
             {"name":"Negative & Mixed","value":"1"}
         ]},
-        {"name":"Air pollution ","value":"37",
+        {"name":"Air Pollution","value":"37",
         "children":[
             {"name":"Positive","value":"17"},
             {"name":"Negative & Mixed","value":"20"}

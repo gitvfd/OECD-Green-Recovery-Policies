@@ -20,15 +20,15 @@
 			<h1>Recovery policy mesures and their environmental impact</h1>
 		</div>
 	</div>
-	<div id=intro><b>Explore the policies put in place by countries! Action the buttons</b> to see how policies are distributed. Mouse over to see the policies' details.</div>
-	<div id="legend">The policy impact on the environment can greatly vary. It is illustrated by the colors which illustrate <span  class="dot positive"></span> positive, <span  class="dot negative"></span> negative, or <span  class="dot mixed"></span> mixed impact.</div>
+	<div id=intro><b>Explore the environmental implications of announced recovery measures in responses to the COVID-19 crisis! </div>
+	<div id="legend">The impact of policies on the environment is illustrated by the following colors: <span  class="dot positive"></span> positive, <span  class="dot negative"></span> negative, or <span  class="dot mixed"></span> mixed impact.</div>
 	<div id="selCountry">
 			<select id="country_dropdown" onchange="updateCouViz(value)"> 
 				
 			</select> ← PICK A COUNTRY TO EXPLORE ITS POLICIES
 		</div>
      <div id="selectorButtonsMain" class="flex-container">
-				<button class="button2 grey" id="launchButton" type="submit" value="agg" onclick="updateAllView(value)"><span class="textbtn">Funding allocated according to environmental categorisation</span></button>
+				<button class="button2 grey" id="launchButton" type="submit" value="agg" onclick="updateAllView(value)"><span class="textbtn">Environmental impacts of policies by sector</span></button>
 				<button class="button2 grey" id="Dimension" type="submit" value="env" onclick="updateAllView(value)"><span class="textbtn">Share of fundings impacting environmental dimensions</span></button>
 			</div>
     
@@ -51,7 +51,7 @@ var divCircle = d3.select("body").append("div")
 	.attr("class", "tooltip")       
 	.style("opacity", 0);
 
-let textAnnot="<b>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue."
+let textAnnot="<b>USD 14 trillion</b> have been announced across the OECD and key partner countries in the wake of the COVID-19 spending, much of it as emergency health funding and rescue spending aimed at keeping businesses and livelihoods afloat and with little environmental implications. But if around <b>USD 327 billion has already been allocated to environmentally positive measures</b>, this total is more  than outweighed by measures tagged as having negative or mixed impacts on the environment<br/><br/><b>Explore this chart</b> to understand which sectors are targeted by the measures and their environmental impacts. <b>Pick a country</b> for a detailled view of the measures."
 
 var divAnnotation = d3.select("#chart").append("div") 
 	.attr("class", "annotation")       
@@ -120,8 +120,13 @@ let color = d3.scaleOrdinal()
 
 
 let colorAll = d3.scaleOrdinal()
-	.domain(["Negative","Negative & Mixed","Positive","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
-	.range(["#586D79","#586D79","#27B499","#FF7363","#ffffff","#979797","#979797","#979797","#979797","#979797","#979797","#979797"])
+	.domain(["Total spent on COVID","Negative","Negative & Mixed","Positive","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
+	.range(["#d3d3d3","#586D79","#586D79","#27B499","#FF7363","#ffffff","#979797","#979797","#979797","#979797","#979797","#979797","#979797"])
+
+let colorEnv = d3.scaleOrdinal()
+	.domain(["Negative","Negative & Mixed","Positive","Mixed","Total","Air Pollution","Climate Mitigation","Climate Adaptation","Biodiversity","Water","Waste & recycling","Other"])
+	.range(["#586D79","#586D79","#27B499","#FF7363","#ffffff","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3"])
+
 
 let amountColor=d3.scaleSqrt()
 	.range(["#FFC2DB","#720017"])
@@ -210,7 +215,7 @@ function initiateViz(){
   
   const pack = data => d3.pack()
     .size([diameter, diameter])
-    .padding(3)
+    .padding(0)
     (d3.hierarchy(aggregates)
      .sum(d => d.value)
      .sort((a, b) => b.value - a.value))
@@ -261,6 +266,23 @@ function initiateViz(){
     newcolor.l += depth == 1 ? 0 : depth * .05;
     return newcolor;
   }
+
+  function setCircleColorEnv(obj) {
+  
+    let depth = obj.depth; 
+
+    while (obj.depth >2) { //previouly 1    
+        obj = obj.parent;
+    }
+        
+    if(obj.parent!=null && obj.parent.data.name=="Positive")
+            obj = obj.parent;
+       
+    
+    let newcolor =  d3.hsl(colorEnv(obj.data.name)) ;
+    newcolor.l += depth == 1 ? 0 : depth * .05;
+    return newcolor;
+  }
   
   function setStrokeColor(obj) {
     let depth = obj.depth;
@@ -275,6 +297,20 @@ function initiateViz(){
     return strokecolor;
   }
   
+  function setStrokeColorEnv(obj) {
+    let depth = obj.depth;
+    while (obj.depth > 2) { //previouly 1
+      obj = obj.parent;
+    }
+
+    if(obj.parent!=null && obj.parent.data.name=="Positive")
+            obj = obj.parent;
+       
+    let strokecolor = /**multicolor ?**/ d3.hsl(colorEnv(obj.data.name)) /**: d3.hsl(hexcolor)**/;
+    return strokecolor;
+  }
+
+
   gAll
       .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`).style("cursor", "pointer")
       .on("click", () => zoom(root));
@@ -285,7 +321,7 @@ function initiateViz(){
     .enter().append("circle")
       .attr("fill", setCircleColor)
       .attr("stroke", setStrokeColor)
-      //.attr("pointer-events", d => !d.children ? "none" : null)
+      .attr("pointer-events", d => !d.children ? "none" : null)
       .on("mouseover", function(k) { 
         d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
 
@@ -415,8 +451,8 @@ function initiateViz(){
     .selectAll("circle")
     .data(rootEnv.descendants()/*.slice(1)*/)
     .enter().append("circle")
-      .attr("fill", setCircleColor)
-      .attr("stroke", setStrokeColor)
+      .attr("fill", setCircleColorEnv)
+      .attr("stroke", setStrokeColorEnv)
       //.attr("pointer-events", d => !d.children ? "none" : null)
       .on("mouseover", function(k) { 
         d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
@@ -431,7 +467,7 @@ function initiateViz(){
             .style("top", event.pageY /*- document.body.scrollTop*/ + "px");
       })
       .on("mouseout", function() { 
-        d3.select(this).attr("stroke", setStrokeColor); 
+        d3.select(this).attr("stroke", setStrokeColorEnv); 
 				divCircle.transition()
 					.duration(100)
 					.style("opacity", 0);
@@ -543,7 +579,7 @@ function initiateViz(){
     /////////////////////////////////////////
         
         
-	y.domain([...new Set(alldata.map(d => d.Sector))])
+	y.domain([...new Set(alldata.map(d => d.Sector))].sort())
 
 	yAxis = d3.axisLeft(y)
         .tickSize(-width);
@@ -614,6 +650,9 @@ function initiateViz(){
 			.attr("stroke", function(d) {
                 if(d.amount==null)
 					return  "#000";})
+			.attr("stroke-width", function(d) {
+                if(d.amount==null)
+					return  "2px";})
             .attr("opacity",0.75);
 		
 		
@@ -677,13 +716,13 @@ gCountry.append("svg:image")
 			else
 			 return 0.9*width
 		})
-		.attr('y', -20)
+		.attr('y', height/2-25)
 		.attr('width', 40)
 		.attr("xlink:href", "img/arrow-right.svg")
 
 	gCountry.append("text")
 		//.attr("x", 0.05*width+30)
-		.attr('y', 5)
+		.attr('y', height/2)
 		.attr("x", function(){
 			if(width<750)
 			 return 0.85*width
@@ -774,7 +813,7 @@ function updateViz(value){
 		});
 		// new y domain
 		if(value=="sector"){
-            y.domain([...new Set(alldata.map(d => d.Sector))])
+            y.domain([...new Set(alldata.map(d => d.Sector))].sort())
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 100);
            
             simulation
@@ -789,7 +828,7 @@ function updateViz(value){
 			    .attr("r", d => d.r);
 
         } else if(value=="type"){
-            y.domain([...new Set(alldata.map(d => d.Type_of_measure))])
+            y.domain([...new Set(alldata.map(d => d.Type_of_measure))].sort())
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
@@ -804,7 +843,7 @@ function updateViz(value){
 			    .attr("r", d => d.r);
 
         }  else if(value=="impact"){
-	        y.domain([...new Set(alldata.map(d => d.Env_impact_category))])
+	        y.domain(["Positive","Mixed","Negative"])//y.domain([...new Set(alldata.map(d => d.Env_impact_category))].sort())
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
@@ -878,7 +917,7 @@ divAnnotation.transition()
 		});
 		// new y domain
 		if(buttonValue=="sector"){
-            y.domain([...new Set(alldata.map(d => d.Sector))])
+            y.domain([...new Set(alldata.map(d => d.Sector))].sort())
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
@@ -893,7 +932,7 @@ divAnnotation.transition()
 			    .attr("r", d => d.r);
 
         } else if(buttonValue=="type"){
-            y.domain([...new Set(alldata.map(d => d.Type_of_measure))])
+            y.domain([...new Set(alldata.map(d => d.Type_of_measure))].sort())
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
@@ -908,7 +947,7 @@ divAnnotation.transition()
 			    .attr("r", d => d.r);
 
         } else if(buttonValue=="scope"){
-	        y.domain([...new Set(alldata.map(d => d.Scope))])
+	        y.domain([...new Set(alldata.map(d => d.Scope))].sort())
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
@@ -923,7 +962,7 @@ divAnnotation.transition()
 			    .attr("r", d => d.r);
 
         } else if(buttonValue=="impact"){
-	        y.domain([...new Set(alldata.map(d => d.Env_impact_category))])
+	          y.domain(["Positive","Mixed","Negative"])//y.domain([...new Set(alldata.map(d => d.Env_impact_category))].sort())
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));;
            
             simulation
