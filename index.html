@@ -8,7 +8,7 @@
 -->
 <head>
 <meta charset="utf-8">
-<title>Minimum value by State</title>
+<title>Green recovery Tracker</title>
 <link rel="stylesheet" href="css/site.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="css/bootstrap.min.css.map">
 <link href='https://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
@@ -103,7 +103,7 @@ let gCountry = svg.append("g")
 
 let simulation;
 
-const time_trans = 900;
+const time_trans = 650;
 
 let x = d3.scalePow(3)
 	.range([0,width-margin.right]);
@@ -698,7 +698,7 @@ function initiateViz(){
 			.force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
 			.force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
 			.alpha(.25)
-			.alphaDecay(0);
+			.alphaDecay(0.0025);
 		
 		// Adjust position of circles.
 		simulation.on("tick", () => {    
@@ -739,6 +739,7 @@ gCountry.append("svg:image")
 		.attr("text-anchor", "start")
 		.style("font-weight",900)
     .text("Unknown");
+
 gCountry.append("text")
     .attr("x",x(-0.015*highest)-20)
     .attr("y",5)
@@ -819,7 +820,9 @@ function updateViz(value){
             simulation
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2));
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+			.alpha(.25)
+			.alphaDecay(0.0025);;
 
             circle
                 .transition()
@@ -834,7 +837,9 @@ function updateViz(value){
             simulation
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.type)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2));
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+			.alpha(.25)
+			.alphaDecay(0.0025);;
 
             circle
                 .transition()
@@ -849,7 +854,9 @@ function updateViz(value){
             simulation
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.impact)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2));
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+			.alpha(.25)
+			.alphaDecay(0.0025);;
 
             circle
                 .transition()
@@ -857,13 +864,7 @@ function updateViz(value){
                 .ease(d3.easeLinear)
 			    .attr("r", d => d.r);
         }  
-
-
-
-    }
-
-
-		
+    }		
 }
 
 function updateCouViz(value){
@@ -876,8 +877,6 @@ divAnnotation.transition()
      couValue = value;
 
     if(couValue=="all"){
-        /*gCountry.attr("opacity",0)
-        gAll.attr("opacity",1)*/
 
         gCountry.attr("display","none")
         
@@ -894,8 +893,6 @@ divAnnotation.transition()
         document.getElementById("selectorButtonsMain").style.display = "flex";
     }else{
 
-        /*gCountry.attr("opacity",1)
-        gAll.attr("opacity",0)*/
 
         gCountry.attr("display","block")
         gAll.attr("display","none")
@@ -923,7 +920,9 @@ divAnnotation.transition()
             simulation
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2));
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+			.alpha(.25)
+			.alphaDecay(0.0025);;
 
             circle
                 .transition()
@@ -938,7 +937,9 @@ divAnnotation.transition()
             simulation
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.type)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2));
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+			.alpha(.25)
+			.alphaDecay(0.0025);;
 
             circle
                 .transition()
@@ -953,7 +954,9 @@ divAnnotation.transition()
             simulation
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.scope)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2));
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+			.alpha(.25)
+			.alphaDecay(0.0025);;
 
             circle
                 .transition()
@@ -968,7 +971,9 @@ divAnnotation.transition()
             simulation
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.impact)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2));
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+			.alpha(.25)
+			.alphaDecay(0.0025);;
 
             circle
                 .transition()
@@ -981,7 +986,7 @@ divAnnotation.transition()
 
 function wrap(text, width) {
   text.each(function() {
-    console.log(this)
+
     var text = d3.select(this),
         words = text.text().split(/\s+/).reverse(),
         word,
