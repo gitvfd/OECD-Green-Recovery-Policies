@@ -17,25 +17,25 @@
 	<div id="heading">
 		<img id="quotes" src="img/quotes.png"></img>
 		<div id="title">
-			<h1>Recovery policy mesures and their environmental impact</h1>
+			<h1>Explore the environmental impact of COVID-19 recovery measures</h1>
 		</div>
 	</div>
-	<div id=intro><b>Explore the environmental implications of announced recovery measures in responses to the COVID-19 crisis! </div>
-	<div id="legend">The impact of policies on the environment is illustrated by the following colors: <span  class="dot positive"></span> positive, <span  class="dot negative"></span> negative, or <span  class="dot mixed"></span> mixed impact.</div>
+	<!--<div id=intro><b>Explore the environmental implications of announced recovery measures in responses to the COVID-19 crisis! </div>-->
+	<div id="legend">The impact of policies on the environment is illustrated by the following colours: <span  class="dot positive"></span> positive, <span  class="dot negative"></span> negative, or <span  class="dot mixed"></span> mixed impact.</div>
 	<div id="selCountry">
 			<select id="country_dropdown" onchange="updateCouViz(value)"> 
 				
 			</select> ← PICK A COUNTRY TO EXPLORE ITS POLICIES
 		</div>
-     <div id="selectorButtonsMain" class="flex-container">
+    <!-- <div id="selectorButtonsMain" class="flex-container">
 				<button class="button2 grey" id="launchButton" type="submit" value="agg" onclick="updateAllView(value)"><span class="textbtn">Environmental impacts of policies by sector</span></button>
 				<button class="button2 grey" id="Dimension" type="submit" value="env" onclick="updateAllView(value)"><span class="textbtn">Share of fundings impacting environmental dimensions</span></button>
-			</div>
+			</div>-->
     
     <div id="selectorButtons" class="flex-container">
-				<button class="button grey" id="launchButton" type="submit" value="sector" onclick="updateViz(value)"><span class="textbtn">Policy sector</span></button>
-				<button class="button grey" id="Dimension" type="submit" value="type" onclick="updateViz(value)"><span class="textbtn">Policy type</span></button>
-				<button class="button grey" id="Dimension" type="submit" value="impact" onclick="updateViz(value)"><span class="textbtn">Policy impact</span></button>
+				<button class="button grey" id="launchButton" type="submit" value="sector" onclick="updateViz(value)"><span class="textbtn">View by policy <b>sector</b></span></button>
+				<button class="button grey" id="Dimension" type="submit" value="type" onclick="updateViz(value)"><span class="textbtn">View by policy <b>type</b></span></button>
+				<button class="button grey" id="Dimension" type="submit" value="impact" onclick="updateViz(value)"><span class="textbtn">View by policy <b>impact</b></span></button>
 		</div>
 	<div id="chart"></div>
 	<div id="source"><b>Source</b>: <a href="https://dx.doi.org/10.1787/67ede41b-en" target="_blank">Green Recovery Tracker</a></div>
@@ -105,7 +105,7 @@ let simulation;
 
 const time_trans = 650;
 
-let x = d3.scalePow(3)
+let x = d3.scalePow().exponent(0.25)
 	.range([0,width-margin.right]);
 
 let y = d3.scaleBand()
@@ -120,7 +120,7 @@ let color = d3.scaleOrdinal()
 
 
 let colorAll = d3.scaleOrdinal()
-	.domain(["Total spent on COVID","Negative","Negative & Mixed","Positive","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
+	.domain(["Total COVID-19 related spending","Negative","Negative & Mixed","Positive","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
 	.range(["#d3d3d3","#586D79","#586D79","#27B499","#FF7363","#ffffff","#979797","#979797","#979797","#979797","#979797","#979797","#979797"])
 
 let colorEnv = d3.scaleOrdinal()
@@ -238,8 +238,14 @@ function initiateViz(){
   
   let fontsize = d3.scaleOrdinal()
     .domain([1,3])
-    .range([24,16])
+    //.range([24,16])
   
+
+  if(width<700)
+  fontsize.range([15,11])
+  else
+  fontsize.range([22,15])
+
   function setColorScheme(multi){
     if (multi) {
       let color = d3.scaleOrdinal()
@@ -443,13 +449,13 @@ function initiateViz(){
     /////////// Env charts ////////////
     /////////////////////////////////////////
 
-  gEnv
+  /**gEnv
       .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`).style("cursor", "pointer")
       .on("click", () => zoomEnv(rootEnv));
 
   const nodeEnv= gEnv.append("g")
     .selectAll("circle")
-    .data(rootEnv.descendants()/*.slice(1)*/)
+    .data(rootEnv.descendants())
     .enter().append("circle")
       .attr("fill", setCircleColorEnv)
       .attr("stroke", setStrokeColorEnv)
@@ -464,7 +470,7 @@ function initiateViz(){
 
           divCircle.html(htmlText)
             .style("left", event.pageX - document.body.scrollLeft + "px")
-            .style("top", event.pageY /*- document.body.scrollTop*/ + "px");
+            .style("top", event.pageY  + "px");
       })
       .on("mouseout", function() { 
         d3.select(this).attr("stroke", setStrokeColorEnv); 
@@ -497,7 +503,7 @@ function initiateViz(){
       .style("font-weight", function() {
         return bold ? "bold" : "normal";
       })
-      .text(function(d){ let label1; /*if(d.data.value==0) label1="" ; else */label1=d.data.name; return label1;});
+      .text(function(d){ let label1; label1=d.data.name; return label1;});
      // .text(d => d.data.name );
      
   const labelEnv2 = gEnv.append("g")
@@ -522,7 +528,7 @@ function initiateViz(){
       .style("font-weight", function() {
         return bold ? "bold" : "normal";
       })
-      .text(function(d){ let label2;/*if(d.data.value==0) label2 = "" ;else */label2= (d.data.value) + "%"; return label2;});
+      .text(function(d){ let label2;label2= (d.data.value) + "%"; return label2;});
       //.text(d => format(d.data.value) + " bn USD");
 
   zoomToEnv([rootEnv.x, rootEnv.y, rootEnv.r * 2]);
@@ -572,7 +578,7 @@ function initiateViz(){
   }
 
 
-    gEnv.attr("display","none")
+    gEnv.attr("display","none")**/
 
     /////////////////////////////////////////
     /////////// country charts //////////////
@@ -693,12 +699,12 @@ function initiateViz(){
 		// Forces
 		simulation = d3.forceSimulation(nodes)
 			//.force("cluster", forceCluster())
-            //.force('charge', d3.forceManyBody().strength(0))
+            .force('charge', d3.forceManyBody().strength(0.001))
 			.force("x", d3.forceX(d => d.x))//.strength(strengthX))
 			.force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
-			.force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
-			.alpha(.25)
-			.alphaDecay(0.0025);
+			.force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
+			//.alpha(.25)
+			//.alphaDecay(0.001);
 		
 		// Adjust position of circles.
 		simulation.on("tick", () => {    
@@ -731,7 +737,7 @@ gCountry.append("svg:image")
 		})
 		.attr("text-anchor", "start")
 		.style("font-weight",900)
-		.text("Higher amount")
+		.text("Higher spending")
 
     gCountry.append("text")
     .attr("x",x(-0.015*highest)-20)
@@ -745,13 +751,14 @@ gCountry.append("text")
     .attr("y",5)
 		.style("font-weight",900)
 		.attr("text-anchor", "start")
-    .text("amount")
+    .text("spending")
     //gCountry.attr("opacity",0)
+
 
     gCountry.attr("display","none")
 }
 
-function updateAllView(value){
+/*function updateAllView(value){
   buttonEnvValue=value;
  if(value=="agg"){
    gAll.attr("display","block")
@@ -763,7 +770,7 @@ function updateAllView(value){
    gEnv.attr("display","block")
  }
 
-}
+}*/
 function updateViz(value){
 
     divAnnotation.transition()
@@ -788,7 +795,7 @@ function updateViz(value){
 
 
         document.getElementById("selectorButtons").style.display = "none";
-        document.getElementById("selectorButtonsMain").style.display = "flex";
+       // document.getElementById("selectorButtonsMain").style.display = "flex";
     }else{
       
         gCountry.attr("display","block")
@@ -796,7 +803,7 @@ function updateViz(value){
         gEnv.attr("display","none")
 
         document.getElementById("selectorButtons").style.display = "flex";
-        document.getElementById("selectorButtonsMain").style.display = "none";
+        //document.getElementById("selectorButtonsMain").style.display = "none";
     
 
 
@@ -818,11 +825,12 @@ function updateViz(value){
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 100);
            
             simulation
+            .force('charge', d3.forceManyBody().strength(0.001))
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
 			.alpha(.25)
-			.alphaDecay(0.0025);;
+			.alphaDecay(0.001);;
 
             circle
                 .transition()
@@ -835,11 +843,12 @@ function updateViz(value){
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
+            .force('charge', d3.forceManyBody().strength(0.001))
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.type)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
 			.alpha(.25)
-			.alphaDecay(0.0025);;
+			.alphaDecay(0.001);;
 
             circle
                 .transition()
@@ -852,11 +861,12 @@ function updateViz(value){
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
+            .force('charge', d3.forceManyBody().strength(0.001))
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.impact)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
 			.alpha(.25)
-			.alphaDecay(0.0025);;
+			.alphaDecay(0.001);;
 
             circle
                 .transition()
@@ -890,7 +900,7 @@ divAnnotation.transition()
       }
 
         document.getElementById("selectorButtons").style.display = "none";
-        document.getElementById("selectorButtonsMain").style.display = "flex";
+        //document.getElementById("selectorButtonsMain").style.display = "flex";
     }else{
 
 
@@ -900,7 +910,7 @@ divAnnotation.transition()
 
        
         document.getElementById("selectorButtons").style.display = "flex";
-        document.getElementById("selectorButtonsMain").style.display = "none";
+        //document.getElementById("selectorButtonsMain").style.display = "none";
 
 		nodes.forEach(function(o,i) {
             if (o.country!=couValue)
@@ -918,11 +928,12 @@ divAnnotation.transition()
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
+            .force('charge', d3.forceManyBody().strength(0.001))
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
 			.alpha(.25)
-			.alphaDecay(0.0025);;
+			.alphaDecay(0.001);;
 
             circle
                 .transition()
@@ -935,11 +946,12 @@ divAnnotation.transition()
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
+            .force('charge', d3.forceManyBody().strength(0.001))
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.type)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
 			.alpha(.25)
-			.alphaDecay(0.0025);;
+			.alphaDecay(0.001);
 
             circle
                 .transition()
@@ -952,11 +964,12 @@ divAnnotation.transition()
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
+            .force('charge', d3.forceManyBody().strength(0.001))
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.scope)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
 			.alpha(.25)
-			.alphaDecay(0.0025);;
+			.alphaDecay(0.001);;
 
             circle
                 .transition()
@@ -969,11 +982,12 @@ divAnnotation.transition()
             yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));;
            
             simulation
+            .force('charge', d3.forceManyBody().strength(0.001))
                 .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                 .force("y", d3.forceY(d => (y(d.impact)+y.bandwidth()/2)))//.strength(strengthY))
-                .force("collision", d3.forceCollide().radius(d => d.r + padding + 2))
+                .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
 			.alpha(.25)
-			.alphaDecay(0.0025);;
+			.alphaDecay(0.001);;
 
             circle
                 .transition()
