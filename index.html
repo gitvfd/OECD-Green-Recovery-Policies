@@ -244,9 +244,9 @@ function initiateViz(){
   
 
   if(width<700)
-  fontsize.range([15,11])
+  fontsize.range([17,13])
   else
-  fontsize.range([21,15])
+  fontsize.range([21,16])
 
   function setColorScheme(multi){
     if (multi) {
@@ -601,13 +601,12 @@ function initiateViz(){
         .call(wrap, 0.65*(margin.left))
 
   // Create node data.
-    var ref=width/2
-
+    var ref=width/2;
     nodes = alldata.map(function(d,i) {	
 
         let r2,x1;
         if(d.Convert_to_USD_millions!=null)	{
-			r2= area(parseFloat(d.Convert_to_USD_millions));
+			      r2= area(parseFloat(d.Convert_to_USD_millions));
             x1=x(parseFloat(d.Convert_to_USD_millions));
         }
         else{
@@ -619,24 +618,26 @@ function initiateViz(){
         if(d.Country!=couValue)	
             r2=0;
 
-            return {
+        return {
             id: d.Identification_number,
             x: x1 ,
             y: y(d.Sector) ,
             r: r2,
             country: d.Country,
-			amount: d.Convert_to_USD_millions,
-			type:d.Type_of_measure,
+			      amount: d.Convert_to_USD_millions,
+			      type:d.Type_of_measure,
             scope: d.Scope,
             impact: d.Env_impact_category,
             sector: d.Sector,
             summary: d.Summary_description,
             infra: d.Infrastructure_relevant,
-			data: []
+			      data: []
         }
+
     })
 
-    render();
+      
+      render();
 
 	//	render()
 	function render(){
@@ -719,7 +720,7 @@ function initiateViz(){
 				.attr("cy", d => d.y)
 				// .attr("fill", d => d.color);
 		});
-    }
+  }
 
 gCountry.append("svg:image")
 		.attr('x', function(){
@@ -864,7 +865,8 @@ function updateViz(value){
 
         }  else if(value=="impact"){
 	        y.domain(["Positive","Mixed","Negative"])//y.domain([...new Set(alldata.map(d => d.Env_impact_category))].sort())
-            yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
+
+          yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
            
             simulation
             .force('charge', d3.forceManyBody().strength(0.001))
