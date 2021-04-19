@@ -2,18 +2,18 @@
     "children":
     [{"name":"Climate Mitigation","value":"90",
         "children":[
-            {"name":"Positive","value":"46"},
-            {"name":"Negative & Mixed","value":"44"}
+            {"name":"Positive","value":"47"},
+            {"name":"Negative & Mixed","value":"43"}
         ]},
         {"name":"Climate Adaptation","value":"3",
         "children":[
             {"name":"Positive","value":"2"},
             {"name":"Negative & Mixed","value":"1"}
         ]},
-        {"name":"Air Pollution","value":"37",
+        {"name":"Air Pollution","value":"35",
         "children":[
-            {"name":"Positive","value":"17"},
-            {"name":"Negative & Mixed","value":"20"}
+            {"name":"Positive","value":"16"},
+            {"name":"Negative & Mixed","value":"19"}
         ]},
         {"name":"Biodiversity","value":"9",
         "children":[
@@ -30,10 +30,10 @@
             {"name":"Positive","value":"2"},
             {"name":"Negative & Mixed","value":"0"}
         ]},
-        {"name":"Other","value":"18",
+        {"name":"Other","value":"17",
         "children":[
             {"name":"Positive","value":"5"},
-            {"name":"Negative & Mixed","value":"13"}
+            {"name":"Negative & Mixed","value":"12"}
         ]}
     ]
 }
