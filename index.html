@@ -202,10 +202,10 @@ function initiateViz(){
 
 
   let bold = true;
-  let black = false;
-  let shadow = true;
+  let black = true;
+  let shadow = false;
   let multicolor = true;
-  let hexcolor = "#0099cc";
+  let hexcolor = "#d3d3d3";
   
   const format = d3.format(".0f")
 
@@ -244,9 +244,9 @@ function initiateViz(){
   
 
   if(width<700)
-  fontsize.range([17,13])
+  fontsize.range([18,14])
   else
-  fontsize.range([21,16])
+  fontsize.range([21,17])
 
   function setColorScheme(multi){
     if (multi) {
@@ -353,11 +353,11 @@ function initiateViz(){
 
   const labelAll = gAll.append("g")
       .style("fill", function() {
-        return black ? "black" : "white";
+        return black ? "#2b2b2b" : "white";
       })
       .style("text-shadow", function(){
         if (shadow) {
-          return black ? "2px 2px 0px white" : "2px 2px 0px black";
+          return black ? "2px 2px 0px white" : "2px 2px 0px #2b2b2b";
         } else {
           return "none";
         }
@@ -378,11 +378,11 @@ function initiateViz(){
      
   const labelAll2 = gAll.append("g")
       .style("fill", function() {
-        return black ? "black" : "white";
+        return black ? "#2b2b2b" : "white";
       })
       .style("text-shadow", function(){
         if (shadow) {
-          return black ? "2px 2px 0px white" : "2px 2px 0px black";
+          return black ? "2px 2px 0px white" : "2px 2px 0px #2b2b2b";
         } else {
           return "none";
         }
