@@ -678,9 +678,13 @@ function initiateViz(){
 				divCircle.transition()
 					.duration(250)
 					.style("opacity", 1);
-
-				var htmlText = "<b>"+d.srcElement.__data__.country+"</b><br/><i> "+ d.srcElement.__data__.type+"</i><br/><br/>Amount: "+ format(d.srcElement.__data__.amount)+" millions of USD<br/>Impact: "+ d.srcElement.__data__.impact+"<br/><br/><b>"+ d.srcElement.__data__.sector +":</b> " + d.srcElement.__data__.summary + "";
-
+        
+        var htmlText;
+        if(d.srcElement.__data__.amount !=null)
+				  htmlText = "<b>"+d.srcElement.__data__.country+"</b><br/><i> "+ d.srcElement.__data__.type+"</i><br/><br/>Amount: "+ format(d.srcElement.__data__.amount)+" millions of USD<br/>Impact: "+ d.srcElement.__data__.impact+"<br/><br/><b>"+ d.srcElement.__data__.sector +":</b> " + d.srcElement.__data__.summary + "";
+        else
+          htmlText = "<b>"+d.srcElement.__data__.country+"</b><br/><i> "+ d.srcElement.__data__.type+"</i><br/><br/>Impact: "+ d.srcElement.__data__.impact+"<br/><br/><b>"+ d.srcElement.__data__.sector +":</b> " + d.srcElement.__data__.summary + "";
+        
 				divCircle.html(htmlText)
 					.style("left", event.pageX - document.body.scrollLeft + "px")
 					.style("top", event.pageY /*- document.body.scrollTop*/ + "px");
