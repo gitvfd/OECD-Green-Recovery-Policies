@@ -38,7 +38,7 @@
 				<button class="button grey" id="Dimension" type="submit" value="impact" onclick="updateViz(value)"><span class="textbtn">View by policy <b>impact</b></span></button>
 		</div>
 	<div id="chart"></div>
-	<div id="source"><b>Source</b>: <a href="https://github.com/gitvfd/OECD-Green-Recovery-Policies/raw/main/data/OECD_ENV_COVID-recovery-database_final-for-web.xlsm" target="_blank">OECD Green Recovery Database (2021)</a></div>
+	<div id="source"><b>data</b>: <a href="https://github.com/gitvfd/OECD-Green-Recovery-Policies/raw/main/data/OECD_ENV_COVID-recovery-database_final-for-web.xlsm" target="_blank">OECD Green Recovery Database (2021)</a> - Total spending estimated from  <a href="https://recovery.smithschool.ox.ac.uk/tracking/" target="_blank">Global Recovery Observatory</a> data</div>
 
 	<img id="OECDLogo" src="img/OECD_20cm.jpg"></img>
 
@@ -125,7 +125,7 @@ let colorEnv = d3.scaleOrdinal()
 	.range(["#586D79","#586D79","#27B499","#FF7363","#ffffff","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3"])
 
 let colorAll = d3.scaleOrdinal()
-	.domain(["The Covid-19 related spendings","Covid-19 related spendings","Positive Impact","Negative & Mixed impact","Negative","Mixed","Energy","Aviation","Ground transport","Maritime transport","Heavy industry","Buildings","Agriculture","Forestry","Waste management","Multiple or other"])//"Positive","Positive Impact","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
+	.domain(["Total COVID-19 recovery spending","Covid-19 related spendings","Positive Impact","Negative & Mixed impact","Negative","Mixed","Energy","Aviation","Ground transport","Maritime transport","Heavy industry","Buildings","Agriculture","Forestry","Waste management","Multiple or other"])//"Positive","Positive Impact","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
 	.range(["#d3d3d3","#d3d3d3","#27B499","#d3d3d3","#586D79","#FF7363","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499"])
 
 
@@ -246,7 +246,7 @@ function initiateViz(){
   if(width<700)
   fontsize.range([18,14])
   else
-  fontsize.range([21,17])
+  fontsize.range([18.5,17])
 
   function setColorScheme(multi){
     if (multi) {
@@ -336,7 +336,11 @@ function initiateViz(){
 				divCircle.transition()
 					.duration(250)
 					.style("opacity", 1);
-          var htmlText = "<b>"+k.srcElement.__data__.data.name + "</b><br/> Amount in USD Billion: <i>" + format(k.srcElement.__data__.data.value) + "</i>";
+          var htmlText ;
+          if(k.srcElement.__data__.data.name=="Total COVID-19 recovery spending")
+             htmlText = "<b>"+k.srcElement.__data__.data.name +"</b";
+          else
+             htmlText = "<b>"+k.srcElement.__data__.data.name + "</b><br/> Amount in USD Billion: <i>" + format(k.srcElement.__data__.data.value) + "</i>";
 
           divCircle.html(htmlText)
             .style("left", event.pageX - document.body.scrollLeft + "px")
@@ -373,7 +377,7 @@ function initiateViz(){
       .style("font-weight", function() {
         return bold ? "bold" : "normal";
       })
-      .text(function(d){ let label1; if(d.data.value==0) label1="" ; else label1=d.data.name; return label1;});
+      .text(function(d){ let label1; if(d.data.value==0) label1="" ; else label1=d.data.name; return label1;})
      // .text(d => d.data.name );
      
   const labelAll2 = gAll.append("g")
@@ -641,7 +645,24 @@ function initiateViz(){
 
 	//	render()
 	function render(){
-        
+  		// Forces
+		simulation = d3.forceSimulation(nodes)
+			//.force("cluster", forceCluster())
+      .force('charge', d3.forceManyBody().strength(0.001))
+			.force("x", d3.forceX(d => d.x))//.strength(strengthX))
+			.force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
+			.force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
+			//.alpha(.25)
+			//.alphaDecay(0.001);
+		
+		// Adjust position of circles.
+		simulation.on("tick", () => {    
+			circle
+				.attr("cx", d => d.x)
+				.attr("cy", d => d.y)
+				// .attr("fill", d => d.color);
+		});
+
 		// Circle for each node.
 		circle = gCountry.append("g")
 			.selectAll("circle")
@@ -703,23 +724,7 @@ function initiateViz(){
 					.duration(100)
 					.style("opacity", 0);
 			})
-		// Forces
-		simulation = d3.forceSimulation(nodes)
-			//.force("cluster", forceCluster())
-            .force('charge', d3.forceManyBody().strength(0.001))
-			.force("x", d3.forceX(d => d.x))//.strength(strengthX))
-			.force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
-			.force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
-			//.alpha(.25)
-			//.alphaDecay(0.001);
-		
-		// Adjust position of circles.
-		simulation.on("tick", () => {    
-			circle
-				.attr("cx", d => d.x)
-				.attr("cy", d => d.y)
-				// .attr("fill", d => d.color);
-		});
+
   }
 
 gCountry.append("svg:image")
