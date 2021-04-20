@@ -191,11 +191,10 @@ launch.then(function(data){
         }); 
     })
 
-	  initiateCirclePack();
-	  initiateVizTracker();
+	  initiateCirclePackCountryChart();
 })
 
-function initiateCirclePack(){
+function initiateCirclePackCountryChart(){
 
       buttonValue='sector';
       buttonEnvValue="agg"
@@ -428,14 +427,14 @@ function initiateCirclePack(){
           .on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
           .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
     }
-  } 
+ // } 
 
 
     /////////////////////////////////////////
     /////////// country charts //////////////
     /////////////////////////////////////////
 
-  function initiateVizTracker(){
+//  function initiateVizTracker(){
         
     y.domain([...new Set(alldata.map(d => d.Sector))].sort())
 
