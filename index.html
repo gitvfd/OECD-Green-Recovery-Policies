@@ -89,6 +89,10 @@ if (width < 500) {
 let nodes;
 let alldata;
 
+
+
+let simulation;
+
 // Node spacing.
 const padding = 0; // Space between nodes
 
@@ -108,7 +112,6 @@ let gEnv = svg.append("g")
 let gCountry = svg.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-let simulation;
 
 const time_trans = 650;
 
@@ -163,11 +166,11 @@ aggregate.then(function(data){
     }); 
 
 // Load envdim
-let envdims=[];
+/*let envdims=[];
 const envdim = d3.json("data/env_dim.json", d3.autoType);
 envdim.then(function(data){
     envdims=data;
-    }); 
+    }); */
 
 
 // Load data.
@@ -217,10 +220,16 @@ function initiateViz(){
   const format = d3.format(".0f")
 
   let diameter ;;
+
         if(width>=height)
             diameter=height;
         else
             diameter=width;
+  
+  
+if(diameter <500)
+  diameter=parseInt(d3.select('#chart').style('width'), 10)*0.95;
+        
   
   const pack = data => d3.pack()
     .size([diameter, diameter])
@@ -230,18 +239,18 @@ function initiateViz(){
      .sort((a, b) => b.value - a.value))
 
   
-  const packEnv = data => d3.pack()
+  /*const packEnv = data => d3.pack()
     .size([diameter, diameter])
     .padding(3)
     (d3.hierarchy(envdims)
      .sum(d => d.value)
-     .sort((a, b) => b.value - a.value))
+     .sort((a, b) => b.value - a.value))*/
 
   const root = pack(aggregates);
-  const rootEnv = packEnv(envdims);
+  //const rootEnv = packEnv(envdims);
 
   let focus = root;
-  let focusEnv=rootEnv;
+  //let focusEnv=rootEnv;
 
   let view;
   
@@ -250,9 +259,9 @@ function initiateViz(){
     //.range([24,16])
   
   if(width<500)
-    fontsize.range([13,11])
+    fontsize.range([12.5,11])
   else if(width<800)
-    fontsize.range([14,12])
+    fontsize.range([13.5,12])
   else
   fontsize.range([18.5,17])
 
@@ -283,7 +292,7 @@ function initiateViz(){
     return newcolor;
   }
 
-  function setCircleColorEnv(obj) {
+  /*function setCircleColorEnv(obj) {
   
     let depth = obj.depth; 
 
@@ -298,7 +307,7 @@ function initiateViz(){
     let newcolor =  d3.hsl(colorEnv(obj.data.name)) ;
     newcolor.l += depth == 1 ? 0 : depth * .05;
     return newcolor;
-  }
+  }*/
   
   function setStrokeColor(obj) {
     let depth = obj.depth;
@@ -313,7 +322,7 @@ function initiateViz(){
     return strokecolor;
   }
   
-  function setStrokeColorEnv(obj) {
+  /*function setStrokeColorEnv(obj) {
     let depth = obj.depth;
     while (obj.depth > 2) { //previouly 1
       obj = obj.parent;
@@ -322,9 +331,9 @@ function initiateViz(){
     if(obj.parent!=null && obj.parent.data.name=="Positive")
             obj = obj.parent;
        
-    let strokecolor = /**multicolor ?**/ d3.hsl(colorEnv(obj.data.name)) /**: d3.hsl(hexcolor)**/;
+    let strokecolor =d3.hsl(colorEnv(obj.data.name)) ;
     return strokecolor;
-  }
+  }*/
 
 
   gAll
@@ -655,7 +664,7 @@ function initiateViz(){
   		// Forces
 		simulation = d3.forceSimulation(nodes)
 			//.force("cluster", forceCluster())
-      .force('charge', d3.forceManyBody().strength(0.001))
+      .force('charge', d3.forceManyBody().strength(0.01))
 			.force("x", d3.forceX(d => d.x))//.strength(strengthX))
 			.force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
 			.force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
@@ -734,7 +743,7 @@ function initiateViz(){
 
   }
 
-gCountry.append("svg:image")
+  gCountry.append("svg:image")
 		.attr('x', function(){
 			if(width<750)
 			 return 0.4*width
@@ -767,7 +776,7 @@ gCountry.append("svg:image")
 		.style("font-weight",900)
     .text("Unknown");
 
-gCountry.append("text")
+  gCountry.append("text")
     .attr("x",x(-0.015*highest)-20)
     .attr("y",5)
 		.style("font-weight",900)
@@ -829,7 +838,6 @@ function updateViz(value){
 
         var counter=0;
 
-
         nodes.forEach(function(o,i) {
                 if (o.country!=couValue)
               o.r = 0;
@@ -845,6 +853,7 @@ function updateViz(value){
                   if (counter==nodes.length)
                     update();
         });
+        
       function update(){
 
           // new y domain
@@ -853,7 +862,7 @@ function updateViz(value){
                   yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 100);
                 
                   simulation
-                  .force('charge', d3.forceManyBody().strength(0.001))
+                  .force('charge', d3.forceManyBody().strength(0.01))
                       .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
@@ -871,7 +880,7 @@ function updateViz(value){
                   yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
                 
                   simulation
-                  .force('charge', d3.forceManyBody().strength(0.001))
+                  .force('charge', d3.forceManyBody().strength(0.01))
                       .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.type)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
@@ -890,7 +899,7 @@ function updateViz(value){
                 yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
                 
                   simulation
-                  .force('charge', d3.forceManyBody().strength(0.001))
+                  .force('charge', d3.forceManyBody().strength(0.01))
                       .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.impact)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
@@ -964,7 +973,7 @@ function updateCouViz(value){
                   yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
                 
                   simulation
-                  .force('charge', d3.forceManyBody().strength(0.001))
+                  .force('charge', d3.forceManyBody().strength(0.01))
                       .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
@@ -982,7 +991,7 @@ function updateCouViz(value){
                   yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
                 
                   simulation
-                  .force('charge', d3.forceManyBody().strength(0.001))
+                  .force('charge', d3.forceManyBody().strength(0.01))
                       .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.type)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
@@ -1000,7 +1009,7 @@ function updateCouViz(value){
                   yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));
                 
                   simulation
-                  .force('charge', d3.forceManyBody().strength(0.001))
+                  .force('charge', d3.forceManyBody().strength(0.01))
                       .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.scope)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
@@ -1018,7 +1027,7 @@ function updateCouViz(value){
                   yAxisEl.transition().ease(d3.easeLinear).duration(time_trans).call(yAxis).selectAll(".tick text").call(wrap, 0.65*(margin.left));;
                 
                   simulation
-                  .force('charge', d3.forceManyBody().strength(0.001))
+                  .force('charge', d3.forceManyBody().strength(0.01))
                       .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.impact)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
