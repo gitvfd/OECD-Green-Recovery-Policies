@@ -393,8 +393,10 @@ div.annotation {
     left: 5px;
   }
 
-.tick {
-  font-size:0.95rem;
+
+.tick text{
+  font-size:0.9rem;
+  
 }
 }
 
@@ -408,7 +410,7 @@ div.annotation {
     top: 10px;
     left: 5px;
   }
-.tick {
-  font-size:0.9rem;
+.tick text{
+  font-size:0.6rem;
 }
 }

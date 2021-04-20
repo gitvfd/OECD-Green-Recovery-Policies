@@ -64,15 +64,22 @@ divAnnotation.transition()
             .style("opacity", 1);*/
 
 // Dimensions of chart.
-let margin = { top: 30, right: 150, bottom: 30, left: 350 },
-      width = parseInt(d3.select('#chart').style('width'), 10) - margin.left - margin.right,
-      height = 630 - margin.top - margin.bottom,
-	  minR = 5,
-	  marginSlider=30;
+
+let margin;
+if(parseInt(d3.select('#chart').style('width'), 10)>800)
+  margin = { top: 30, right: 150, bottom: 30, left: 350 };
+else
+  margin = { top: 30, right: 50, bottom: 30, left: 125 };
+
+let width = parseInt(d3.select('#chart').style('width'), 10) - margin.left - margin.right;
+let height = 630 - margin.top - margin.bottom;
+let minR = 5;
+let marginSlider=30;
+
 	  widthSlider = parseInt(d3.select('#chart').style('width'), 10) - 2*marginSlider;
 if (width < 500) {
-    margin = { top: 30, right: 100, bottom: 30, left: 200 },
-    width = parseInt(d3.select('#chart').style('width'), 10) - margin.left - margin.right,
+   // margin = { top: 30, right: 100, bottom: 30, left: 200 },
+    //width = parseInt(d3.select('#chart').style('width'), 10) - margin.left - margin.right,
 	minR = 4,
 	height = 630 - margin.top - margin.bottom;
 }
@@ -242,9 +249,10 @@ function initiateViz(){
     .domain([1,3])
     //.range([24,16])
   
-
-  if(width<700)
-  fontsize.range([18,14])
+  if(width<500)
+    fontsize.range([13,11])
+  else if(width<800)
+    fontsize.range([14,12])
   else
   fontsize.range([18.5,17])
 
@@ -730,7 +738,7 @@ function initiateViz(){
 gCountry.append("svg:image")
 		.attr('x', function(){
 			if(width<750)
-			 return 0.75*width
+			 return 0.4*width
 			else
 			 return 0.9*width
 		})
@@ -743,7 +751,7 @@ gCountry.append("svg:image")
 		.attr('y', height/2)
 		.attr("x", function(){
 			if(width<750)
-			 return 0.85*width
+			 return 0.6*width
 			else
 			 return 0.95*width
 		})
@@ -751,6 +759,8 @@ gCountry.append("svg:image")
 		.style("font-weight",900)
 		.text("Higher spending")
 
+
+    
     gCountry.append("text")
     .attr("x",x(-0.015*highest)-20)
     .attr("y",-8)
