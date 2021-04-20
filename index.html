@@ -165,12 +165,6 @@ aggregate.then(function(data){
     aggregates=data;
     }); 
 
-// Load envdim
-/*let envdims=[];
-const envdim = d3.json("data/env_dim.json", d3.autoType);
-envdim.then(function(data){
-    envdims=data;
-    }); */
 
 
 // Load data.
@@ -240,18 +234,11 @@ function initiateCirclePack(){
       .sort((a, b) => b.value - a.value))
 
     
-    /*const packEnv = data => d3.pack()
-      .size([diameter, diameter])
-      .padding(3)
-      (d3.hierarchy(envdims)
-      .sum(d => d.value)
-      .sort((a, b) => b.value - a.value))*/
+    
 
     const root = pack(aggregates);
-    //const rootEnv = packEnv(envdims);
 
     let focus = root;
-    //let focusEnv=rootEnv;
 
     let view;
     
@@ -293,22 +280,7 @@ function initiateCirclePack(){
       return newcolor;
     }
 
-    /*function setCircleColorEnv(obj) {
     
-      let depth = obj.depth; 
-
-      while (obj.depth >2) { //previouly 1    
-          obj = obj.parent;
-      }
-          
-      if(obj.parent!=null && obj.parent.data.name=="Positive")
-              obj = obj.parent;
-        
-      
-      let newcolor =  d3.hsl(colorEnv(obj.data.name)) ;
-      newcolor.l += depth == 1 ? 0 : depth * .05;
-      return newcolor;
-    }*/
     
     function setStrokeColor(obj) {
       let depth = obj.depth;
@@ -323,18 +295,6 @@ function initiateCirclePack(){
       return strokecolor;
     }
     
-    /*function setStrokeColorEnv(obj) {
-      let depth = obj.depth;
-      while (obj.depth > 2) { //previouly 1
-        obj = obj.parent;
-      }
-
-      if(obj.parent!=null && obj.parent.data.name=="Positive")
-              obj = obj.parent;
-        
-      let strokecolor =d3.hsl(colorEnv(obj.data.name)) ;
-      return strokecolor;
-    }*/
 
 
     gAll
@@ -470,140 +430,6 @@ function initiateCirclePack(){
     }
   } 
 
-    /////////////////////////////////////////
-    /////////// Env charts ////////////
-    /////////////////////////////////////////
-
-  /**gEnv
-      .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`).style("cursor", "pointer")
-      .on("click", () => zoomEnv(rootEnv));
-
-  const nodeEnv= gEnv.append("g")
-    .selectAll("circle")
-    .data(rootEnv.descendants())
-    .enter().append("circle")
-      .attr("fill", setCircleColorEnv)
-      .attr("stroke", setStrokeColorEnv)
-      //.attr("pointer-events", d => !d.children ? "none" : null)
-      .on("mouseover", function(k) { 
-        d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
-
-				divCircle.transition()
-					.duration(250)
-					.style("opacity", 1);
-          var htmlText = "<b>"+k.srcElement.__data__.data.name + "</b><br/> Proportion of total funding allocated to measures: <i>" + (k.srcElement.__data__.data.value) + "%</i>";
-
-          divCircle.html(htmlText)
-            .style("left", event.pageX - document.body.scrollLeft + "px")
-            .style("top", event.pageY  + "px");
-      })
-      .on("mouseout", function() { 
-        d3.select(this).attr("stroke", setStrokeColorEnv); 
-				divCircle.transition()
-					.duration(100)
-					.style("opacity", 0);
-        })
-      .on("click", function(d){ return focusEnv !== d && (zoomEnv(d.srcElement.__data__), event.stopPropagation())});
-
-
-  const labelEnv = gEnv.append("g")
-      .style("fill", function() {
-        return black ? "black" : "white";
-      })
-      .style("text-shadow", function(){
-        if (shadow) {
-          return black ? "2px 2px 0px white" : "2px 2px 0px black";
-        } else {
-          return "none";
-        }
-      })
-      .attr("pointer-events", "none")
-      .attr("text-anchor", "middle")
-    .selectAll("text")
-    .data(rootEnv.descendants())
-    .enter().append("text")
-      .style("fill-opacity", d => d.parent === rootEnv ? 1 : 0)
-      .style("display", d => d.parent === rootEnv ? "inline" : "none")
-      .style("font", d => fontsize(d.depth) + "px sans-serif")
-      .style("font-weight", function() {
-        return bold ? "bold" : "normal";
-      })
-      .text(function(d){ let label1; label1=d.data.name; return label1;});
-     // .text(d => d.data.name );
-     
-  const labelEnv2 = gEnv.append("g")
-      .style("fill", function() {
-        return black ? "black" : "white";
-      })
-      .style("text-shadow", function(){
-        if (shadow) {
-          return black ? "2px 2px 0px white" : "2px 2px 0px black";
-        } else {
-          return "none";
-        }
-      })
-      .attr("pointer-events", "none")
-      .attr("text-anchor", "middle")
-    .selectAll("text")
-    .data(rootEnv.descendants())
-    .enter().append("text")
-      .style("fill-opacity", d => d.parent === rootEnv ? 1 : 0)
-      .style("display", d => d.parent === rootEnv ? "inline" : "none")
-      .style("font", d => fontsize(d.depth) + "px sans-serif")
-      .style("font-weight", function() {
-        return bold ? "bold" : "normal";
-      })
-      .text(function(d){ let label2;label2= (d.data.value) + "%"; return label2;});
-      //.text(d => format(d.data.value) + " bn USD");
-
-  zoomToEnv([rootEnv.x, rootEnv.y, rootEnv.r * 2]);
-
-  function zoomToEnv(v) {
-    const k = diameter / v[2];
-
-    view = v;
-
-    labelEnv.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k + fontsize(d.depth)/4})`);
-    labelEnv2.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]+ fontsize(d.depth)/k) * k + fontsize(d.depth)/4})`);
-    nodeEnv.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
-    nodeEnv.attr("r", d => d.r * k);
-  }
-
-  function zoomEnv(d) {
-
-    divAnnotation.transition()
-            .duration(250)
-            .style("opacity", 0);
-
-    const focus0 = focusEnv;
-    
-    focusEnv = d;
-
-    const transitionEnv = gEnv.transition()
-        .duration(event.altKey ? 7500 : 750)
-        .tween("zoom", d => {
-          const i = d3.interpolateZoom(view, [focusEnv.x, focusEnv.y, focusEnv.r * 2]);
-          return t => zoomToEnv(i(t));
-        });
-
-    labelEnv
-      .filter(function(d) { return d.parent === focusEnv || this.style.display === "inline"; })
-      .transition(transitionEnv)
-        .style("fill-opacity", d => d.parent === focusEnv ? 1 : 0)
-        .on("start", function(d) { if (d.parent === focusEnv) this.style.display = "inline"; })
-        .on("end", function(d) { if (d.parent !== focusEnv) this.style.display = "none"; });
-
-
-    labelEnv2
-      .filter(function(d) { return d.parent === focusEnv || this.style.display === "inline"; })
-      .transition(transitionEnv)
-        .style("fill-opacity", d => d.parent === focusEnv ? 1 : 0)
-        .on("start", function(d) { if (d.parent === focusEnv) this.style.display = "inline"; })
-        .on("end", function(d) { if (d.parent !== focusEnv) this.style.display = "none"; });
-  }
-
-
-    gEnv.attr("display","none")**/
 
     /////////////////////////////////////////
     /////////// country charts //////////////
