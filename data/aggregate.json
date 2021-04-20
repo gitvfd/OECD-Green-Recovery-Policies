@@ -1,7 +1,7 @@
 {"name":"Total COVID-19 recovery spending","value":"1950",
     "children":
     [
-                {"name":"Positive Impact","value":"336",
+                {"name":"Positive impact","value":"336",
 
                     "children":[
                         {"name":"Energy","value":"88.344841590736"},
@@ -15,7 +15,7 @@
                         {"name":"Waste management","value":"2.01571395687582"},
                         {"name":"Multiple or other","value":"106.686320203595"}
                     ]
-                },{"name":"Negative & Mixed impact","value":"334",
+                },{"name":"Negative & mixed impact","value":"334",
                 "children":[
                     {"name":"Negative","value":"177",
                     "children":[

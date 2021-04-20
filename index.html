@@ -17,7 +17,7 @@
 	<div id="heading">
 		<img id="quotes" src="img/quotes.png"></img>
 		<div id="title">
-			<h1>Explore the environmental impact of COVID-19 recovery measures</h1>
+			<h1>Environmental impact of COVID-19 recovery measures by country</h1>
 		</div>
 	</div>
 	<!--<div id=intro><b>Explore the environmental implications of announced recovery measures in responses to the COVID-19 crisis! </div>-->
@@ -38,7 +38,7 @@
 				<button class="button grey" id="Dimension" type="submit" value="impact" onclick="updateViz(value)"><span class="textbtn">View by policy <b>impact</b></span></button>
 		</div>
 	<div id="chart"></div>
-	<div id="source"><b>data</b>: <a href="https://github.com/gitvfd/OECD-Green-Recovery-Policies/raw/main/data/OECD_ENV_COVID-recovery-database_final-for-web.xlsm" target="_blank">OECD Green Recovery Database (2021)</a> - Total spending estimated from  <a href="https://recovery.smithschool.ox.ac.uk/tracking/" target="_blank">Global Recovery Observatory</a> data</div>
+	<div id="source"><b>Source</b>: <a href="https://github.com/gitvfd/OECD-Green-Recovery-Policies/raw/main/data/OECD_ENV_COVID-recovery-database_final-for-web.xlsm" target="_blank">OECD Green Recovery Database (2021)</a> - Total spending estimated from  <a href="https://recovery.smithschool.ox.ac.uk/tracking/" target="_blank">Global Recovery Observatory</a> data</div>
 
 	<img id="OECDLogo" src="img/OECD_20cm.jpg"></img>
 
@@ -51,9 +51,9 @@ var divCircle = d3.select("body").append("div")
 	.attr("class", "tooltip")       
 	.style("opacity", 0);
 
-let textAnnot="The database focuses on measures related to COVID-19 economic recovery efforts with clear positive, negative or “mixed” environmental impacts across one or several environmental categories.<br/><b>It contains around 680 national-level measures with environmental relevance</b>, spread over 43 countries and the European Union. Overall, around 80% of measures have a monetary value attached (exceptions mainly relate to regulatory changes).<br/><b>The database covers a range of environmental impacts beyond just energy and climate,</b> and includes pollution (air, plastics), water, biodiversity, and waste management.<br/><b>Explore this chart</b> to understand the environmental impacts of recovery measures by country, and by type of measure, targeted policy sector, and environmental category."
+//let textAnnot="The database focuses on measures related to COVID-19 economic recovery efforts with clear positive, negative or “mixed” environmental impacts across one or several environmental categories.<br/><b>It contains around 680 national-level measures with environmental relevance</b>, spread over 43 countries and the European Union. Overall, around 80% of measures have a monetary value attached (exceptions mainly relate to regulatory changes).<br/><b>The database covers a range of environmental impacts beyond just energy and climate,</b> and includes pollution (air, plastics), water, biodiversity, and waste management.<br/><b>Explore this chart</b> to understand the environmental impacts of recovery measures by country, and by type of measure, targeted policy sector, and environmental category."
 
-var divAnnotation = d3.select("#chart").append("div") 
+/*var divAnnotation = d3.select("#chart").append("div") 
 	.attr("class", "annotation")       
 	.style("opacity", 0);
 
@@ -61,7 +61,7 @@ divAnnotation.html(textAnnot)
 
 divAnnotation.transition()
             .duration(250)
-            .style("opacity", 1);
+            .style("opacity", 1);*/
 
 // Dimensions of chart.
 let margin = { top: 30, right: 150, bottom: 30, left: 350 },
@@ -125,7 +125,7 @@ let colorEnv = d3.scaleOrdinal()
 	.range(["#586D79","#586D79","#27B499","#FF7363","#ffffff","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3","#d3d3d3"])
 
 let colorAll = d3.scaleOrdinal()
-	.domain(["Total COVID-19 recovery spending","Covid-19 related spendings","Positive Impact","Negative & Mixed impact","Negative","Mixed","Energy","Aviation","Ground transport","Maritime transport","Heavy industry","Buildings","Agriculture","Forestry","Waste management","Multiple or other"])//"Positive","Positive Impact","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
+	.domain(["Total COVID-19 recovery spending","Covid-19 related spendings","Positive impact","Negative & mixed impact","Negative","Mixed","Energy","Aviation","Ground transport","Maritime transport","Heavy industry","Buildings","Agriculture","Forestry","Waste management","Multiple or other"])//"Positive","Positive Impact","Mixed","Total","Climate Mitigation","Climate Adaptation","Air pollution","Biodiversity","Water","Waste & recycling","Other"])
 	.range(["#d3d3d3","#d3d3d3","#27B499","#d3d3d3","#586D79","#FF7363","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499","#27B499"])
 
 
@@ -419,10 +419,10 @@ function initiateViz(){
   }
 
   function zoom(d) {
-
+/*
     divAnnotation.transition()
             .duration(250)
-            .style("opacity", 0);
+            .style("opacity", 0);**/
     const focus0 = focus;
     
     focus = d;
@@ -785,9 +785,9 @@ gCountry.append("text")
 }*/
 function updateViz(value){
 
-    divAnnotation.transition()
+   /* divAnnotation.transition()
             .duration(250)
-            .style("opacity", 0);
+            .style("opacity", 0);*/
 
     //update variables
     buttonValue=value;
@@ -892,9 +892,9 @@ function updateViz(value){
 
 function updateCouViz(value){
 
-divAnnotation.transition()
+/*divAnnotation.transition()
             .duration(250)
-            .style("opacity", 0);
+            .style("opacity", 0);*/
 
 	//update variables
      couValue = value;
