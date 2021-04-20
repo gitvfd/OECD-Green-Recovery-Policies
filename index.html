@@ -197,276 +197,278 @@ launch.then(function(data){
         }); 
     })
 
-	  initiateViz();
+	  initiateCirclePack();
+	  initiateVizTracker();
 })
 
-function initiateViz(){
+function initiateCirclePack(){
 
-    buttonValue='sector';
-    buttonEnvValue="agg"
-    couValue='All';
+      buttonValue='sector';
+      buttonEnvValue="agg"
+      couValue='AUS';
 
-    /////////////////////////////////////////
-    /////////// Aggregate charts ////////////
-    /////////////////////////////////////////
+      /////////////////////////////////////////
+      /////////// Aggregate charts ////////////
+      /////////////////////////////////////////
 
 
-  let bold = true;
-  let black = true;
-  let shadow = false;
-  let multicolor = true;
-  let hexcolor = "#d3d3d3";
-  
-  const format = d3.format(".0f")
-
-  let diameter ;;
-
-        if(width>=height)
-            diameter=height;
-        else
-            diameter=width;
-  
-  
-if(diameter <450)
-  diameter=parseInt(d3.select('#chart').style('width'), 10)*0.95;
-        
-  
-  const pack = data => d3.pack()
-    .size([diameter, diameter])
-    .padding(0)
-    (d3.hierarchy(aggregates)
-     .sum(d => d.value)
-     .sort((a, b) => b.value - a.value))
-
-  
-  /*const packEnv = data => d3.pack()
-    .size([diameter, diameter])
-    .padding(3)
-    (d3.hierarchy(envdims)
-     .sum(d => d.value)
-     .sort((a, b) => b.value - a.value))*/
-
-  const root = pack(aggregates);
-  //const rootEnv = packEnv(envdims);
-
-  let focus = root;
-  //let focusEnv=rootEnv;
-
-  let view;
-  
-  let fontsize = d3.scaleOrdinal()
-    .domain([1,3])
-    //.range([24,16])
-  
-  if(width<500)
-    fontsize.range([12.5,11])
-  else if(width<800)
-    fontsize.range([13.5,12])
-  else
-  fontsize.range([18.5,17])
-
-  function setColorScheme(multi){
-    if (multi) {
-      let color = d3.scaleOrdinal()
-        .range(d3.schemeCategory10)
-      return color;
-    }
-  }
-  
-  //let color = setColorScheme(multicolor);
-  
-  function setCircleColor(obj) {
-  
-    let depth = obj.depth; 
-
-    while (obj.depth >2) { //previouly 1    
-        obj = obj.parent;
-    }
-        
-    if(obj.parent!=null && obj.parent.data.name=="Positive")
-            obj = obj.parent;
-       
+    let bold = true;
+    let black = true;
+    let shadow = false;
+    let multicolor = true;
+    let hexcolor = "#d3d3d3";
     
-    let newcolor =  d3.hsl(colorAll(obj.data.name)) ;
-    newcolor.l += depth == 1 ? 0 : depth * .05;
-    return newcolor;
-  }
+    const format = d3.format(".0f")
 
-  /*function setCircleColorEnv(obj) {
-  
-    let depth = obj.depth; 
+    let diameter ;;
 
-    while (obj.depth >2) { //previouly 1    
-        obj = obj.parent;
-    }
-        
-    if(obj.parent!=null && obj.parent.data.name=="Positive")
-            obj = obj.parent;
-       
-    
-    let newcolor =  d3.hsl(colorEnv(obj.data.name)) ;
-    newcolor.l += depth == 1 ? 0 : depth * .05;
-    return newcolor;
-  }*/
-  
-  function setStrokeColor(obj) {
-    let depth = obj.depth;
-    while (obj.depth > 2) { //previouly 1
-      obj = obj.parent;
-    }
-
-    if(obj.parent!=null && obj.parent.data.name=="Positive")
-            obj = obj.parent;
-       
-    let strokecolor = /**multicolor ?**/ d3.hsl(colorAll(obj.data.name)) /**: d3.hsl(hexcolor)**/;
-    return strokecolor;
-  }
-  
-  /*function setStrokeColorEnv(obj) {
-    let depth = obj.depth;
-    while (obj.depth > 2) { //previouly 1
-      obj = obj.parent;
-    }
-
-    if(obj.parent!=null && obj.parent.data.name=="Positive")
-            obj = obj.parent;
-       
-    let strokecolor =d3.hsl(colorEnv(obj.data.name)) ;
-    return strokecolor;
-  }*/
-
-
-  gAll
-      .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`).style("cursor", "pointer")
-      .on("click", () => zoom(root));
-
-  const nodeAll= gAll.append("g")
-    .selectAll("circle")
-    .data(root.descendants()/*.slice(1)*/)
-    .enter().append("circle")
-      .attr("fill", setCircleColor)
-      .attr("stroke", setStrokeColor)
-      .attr("pointer-events", d => !d.children ? "none" : null)
-      .on("mouseover", function(k) { 
-        d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
-
-				divCircle.transition()
-					.duration(250)
-					.style("opacity", 1);
-          var htmlText ;
-          if(k.srcElement.__data__.data.name=="Total COVID-19 recovery spending")
-             htmlText = "<b>"+k.srcElement.__data__.data.name +"</b";
+          if(width>=height)
+              diameter=height;
           else
-             htmlText = "<b>"+k.srcElement.__data__.data.name + "</b><br/> Amount in USD Billion: <i>" + format(k.srcElement.__data__.data.value) + "</i>";
-
-          divCircle.html(htmlText)
-            .style("left", event.pageX - document.body.scrollLeft + "px")
-            .style("top", event.pageY /*- document.body.scrollTop*/ + "px");
-      })
-      .on("mouseout", function() { 
-        d3.select(this).attr("stroke", setStrokeColor); 
-				divCircle.transition()
-					.duration(100)
-					.style("opacity", 0);
-        })
-      .on("click", function(d){ return focus !== d && (zoom(d.srcElement.__data__), event.stopPropagation())});
-
-
-  const labelAll = gAll.append("g")
-      .style("fill", function() {
-        return black ? "#2b2b2b" : "white";
-      })
-      .style("text-shadow", function(){
-        if (shadow) {
-          return black ? "2px 2px 0px white" : "2px 2px 0px #2b2b2b";
-        } else {
-          return "none";
-        }
-      })
-      .attr("pointer-events", "none")
-      .attr("text-anchor", "middle")
-    .selectAll("text")
-    .data(root.descendants())
-    .enter().append("text")
-      .style("fill-opacity", d => d.parent === root ? 1 : 0)
-      .style("display", d => d.parent === root ? "inline" : "none")
-      .style("font", d => fontsize(d.depth) + "px sans-serif")
-      .style("font-weight", function() {
-        return bold ? "bold" : "normal";
-      })
-      .text(function(d){ let label1; if(d.data.value==0) label1="" ; else label1=d.data.name; return label1;})
-     // .text(d => d.data.name );
-     
-  const labelAll2 = gAll.append("g")
-      .style("fill", function() {
-        return black ? "#2b2b2b" : "white";
-      })
-      .style("text-shadow", function(){
-        if (shadow) {
-          return black ? "2px 2px 0px white" : "2px 2px 0px #2b2b2b";
-        } else {
-          return "none";
-        }
-      })
-      .attr("pointer-events", "none")
-      .attr("text-anchor", "middle")
-    .selectAll("text")
-    .data(root.descendants())
-    .enter().append("text")
-      .style("fill-opacity", d => d.parent === root ? 1 : 0)
-      .style("display", d => d.parent === root ? "inline" : "none")
-      .style("font", d => fontsize(d.depth) + "px sans-serif")
-      .style("font-weight", function() {
-        return bold ? "bold" : "normal";
-      })
-      .text(function(d){ let label2;if(d.data.value==0) label2 = "" ;else label2= format(d.data.value) + " bn USD"; return label2;});
-      //.text(d => format(d.data.value) + " bn USD");
-
-  zoomTo([root.x, root.y, root.r * 2]);
-
-  function zoomTo(v) {
-    const k = diameter / v[2];
-
-    view = v;
-
-    labelAll.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k + fontsize(d.depth)/4})`);
-    labelAll2.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]+ fontsize(d.depth)/k) * k + fontsize(d.depth)/4})`);
-    nodeAll.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
-    nodeAll.attr("r", d => d.r * k);
-  }
-
-  function zoom(d) {
-/*
-    divAnnotation.transition()
-            .duration(250)
-            .style("opacity", 0);**/
-    const focus0 = focus;
+              diameter=width;
     
-    focus = d;
+    
+  if(diameter <450)
+    diameter=parseInt(d3.select('#chart').style('width'), 10)*0.95;
+          
+    
+    const pack = data => d3.pack()
+      .size([diameter, diameter])
+      .padding(0)
+      (d3.hierarchy(aggregates)
+      .sum(d => d.value)
+      .sort((a, b) => b.value - a.value))
 
-    const transition = gAll.transition()
-        .duration(event.altKey ? 7500 : 750)
-        .tween("zoom", d => {
-          const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
-          return t => zoomTo(i(t));
-        });
+    
+    /*const packEnv = data => d3.pack()
+      .size([diameter, diameter])
+      .padding(3)
+      (d3.hierarchy(envdims)
+      .sum(d => d.value)
+      .sort((a, b) => b.value - a.value))*/
 
-    labelAll
-      .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
-      .transition(transition)
-        .style("fill-opacity", d => d.parent === focus ? 1 : 0)
-        .on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
-        .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
+    const root = pack(aggregates);
+    //const rootEnv = packEnv(envdims);
+
+    let focus = root;
+    //let focusEnv=rootEnv;
+
+    let view;
+    
+    let fontsize = d3.scaleOrdinal()
+      .domain([1,3])
+      //.range([24,16])
+    
+    if(width<500)
+      fontsize.range([12.5,11])
+    else if(width<800)
+      fontsize.range([13.5,12])
+    else
+    fontsize.range([18.5,17])
+
+    function setColorScheme(multi){
+      if (multi) {
+        let color = d3.scaleOrdinal()
+          .range(d3.schemeCategory10)
+        return color;
+      }
+    }
+    
+    //let color = setColorScheme(multicolor);
+    
+    function setCircleColor(obj) {
+    
+      let depth = obj.depth; 
+
+      while (obj.depth >2) { //previouly 1    
+          obj = obj.parent;
+      }
+          
+      if(obj.parent!=null && obj.parent.data.name=="Positive")
+              obj = obj.parent;
+        
+      
+      let newcolor =  d3.hsl(colorAll(obj.data.name)) ;
+      newcolor.l += depth == 1 ? 0 : depth * .05;
+      return newcolor;
+    }
+
+    /*function setCircleColorEnv(obj) {
+    
+      let depth = obj.depth; 
+
+      while (obj.depth >2) { //previouly 1    
+          obj = obj.parent;
+      }
+          
+      if(obj.parent!=null && obj.parent.data.name=="Positive")
+              obj = obj.parent;
+        
+      
+      let newcolor =  d3.hsl(colorEnv(obj.data.name)) ;
+      newcolor.l += depth == 1 ? 0 : depth * .05;
+      return newcolor;
+    }*/
+    
+    function setStrokeColor(obj) {
+      let depth = obj.depth;
+      while (obj.depth > 2) { //previouly 1
+        obj = obj.parent;
+      }
+
+      if(obj.parent!=null && obj.parent.data.name=="Positive")
+              obj = obj.parent;
+        
+      let strokecolor = /**multicolor ?**/ d3.hsl(colorAll(obj.data.name)) /**: d3.hsl(hexcolor)**/;
+      return strokecolor;
+    }
+    
+    /*function setStrokeColorEnv(obj) {
+      let depth = obj.depth;
+      while (obj.depth > 2) { //previouly 1
+        obj = obj.parent;
+      }
+
+      if(obj.parent!=null && obj.parent.data.name=="Positive")
+              obj = obj.parent;
+        
+      let strokecolor =d3.hsl(colorEnv(obj.data.name)) ;
+      return strokecolor;
+    }*/
 
 
-    labelAll2
-      .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
-      .transition(transition)
-        .style("fill-opacity", d => d.parent === focus ? 1 : 0)
-        .on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
-        .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
-  }
+    gAll
+        .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`).style("cursor", "pointer")
+        .on("click", () => zoom(root));
 
+    const nodeAll= gAll.append("g")
+      .selectAll("circle")
+      .data(root.descendants()/*.slice(1)*/)
+      .enter().append("circle")
+        .attr("fill", setCircleColor)
+        .attr("stroke", setStrokeColor)
+        .attr("pointer-events", d => !d.children ? "none" : null)
+        .on("mouseover", function(k) { 
+          d3.select(this).attr("stroke", d => d.depth == 1 ? "black" : "white"); 
+
+          divCircle.transition()
+            .duration(250)
+            .style("opacity", 1);
+            var htmlText ;
+            if(k.srcElement.__data__.data.name=="Total COVID-19 recovery spending")
+              htmlText = "<b>"+k.srcElement.__data__.data.name +"</b";
+            else
+              htmlText = "<b>"+k.srcElement.__data__.data.name + "</b><br/> Amount in USD Billion: <i>" + format(k.srcElement.__data__.data.value) + "</i>";
+
+            divCircle.html(htmlText)
+              .style("left", event.pageX - document.body.scrollLeft + "px")
+              .style("top", event.pageY /*- document.body.scrollTop*/ + "px");
+        })
+        .on("mouseout", function() { 
+          d3.select(this).attr("stroke", setStrokeColor); 
+          divCircle.transition()
+            .duration(100)
+            .style("opacity", 0);
+          })
+        .on("click", function(d){ return focus !== d && (zoom(d.srcElement.__data__), event.stopPropagation())});
+
+
+    const labelAll = gAll.append("g")
+        .style("fill", function() {
+          return black ? "#2b2b2b" : "white";
+        })
+        .style("text-shadow", function(){
+          if (shadow) {
+            return black ? "2px 2px 0px white" : "2px 2px 0px #2b2b2b";
+          } else {
+            return "none";
+          }
+        })
+        .attr("pointer-events", "none")
+        .attr("text-anchor", "middle")
+      .selectAll("text")
+      .data(root.descendants())
+      .enter().append("text")
+        .style("fill-opacity", d => d.parent === root ? 1 : 0)
+        .style("display", d => d.parent === root ? "inline" : "none")
+        .style("font", d => fontsize(d.depth) + "px sans-serif")
+        .style("font-weight", function() {
+          return bold ? "bold" : "normal";
+        })
+        .text(function(d){ let label1; if(d.data.value==0) label1="" ; else label1=d.data.name; return label1;})
+      // .text(d => d.data.name );
+      
+    const labelAll2 = gAll.append("g")
+        .style("fill", function() {
+          return black ? "#2b2b2b" : "white";
+        })
+        .style("text-shadow", function(){
+          if (shadow) {
+            return black ? "2px 2px 0px white" : "2px 2px 0px #2b2b2b";
+          } else {
+            return "none";
+          }
+        })
+        .attr("pointer-events", "none")
+        .attr("text-anchor", "middle")
+      .selectAll("text")
+      .data(root.descendants())
+      .enter().append("text")
+        .style("fill-opacity", d => d.parent === root ? 1 : 0)
+        .style("display", d => d.parent === root ? "inline" : "none")
+        .style("font", d => fontsize(d.depth) + "px sans-serif")
+        .style("font-weight", function() {
+          return bold ? "bold" : "normal";
+        })
+        .text(function(d){ let label2;if(d.data.value==0) label2 = "" ;else label2= format(d.data.value) + " bn USD"; return label2;});
+        //.text(d => format(d.data.value) + " bn USD");
+
+    zoomTo([root.x, root.y, root.r * 2]);
+
+    function zoomTo(v) {
+      const k = diameter / v[2];
+
+      view = v;
+
+      labelAll.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k + fontsize(d.depth)/4})`);
+      labelAll2.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]+ fontsize(d.depth)/k) * k + fontsize(d.depth)/4})`);
+      nodeAll.attr("transform", d => `translate(${(d.x - v[0]) * k},${(d.y - v[1]) * k})`);
+      nodeAll.attr("r", d => d.r * k);
+    }
+
+    function zoom(d) {
+  /*
+      divAnnotation.transition()
+              .duration(250)
+              .style("opacity", 0);**/
+
+      const focus0 = focus;
+      
+      focus = d;
+
+      const transition = gAll.transition()
+          .duration(event.altKey ? 7500 : 750)
+          .tween("zoom", d => {
+            const i = d3.interpolateZoom(view, [focus.x, focus.y, focus.r * 2]);
+            return t => zoomTo(i(t));
+          });
+
+      labelAll
+        .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
+        .transition(transition)
+          .style("fill-opacity", d => d.parent === focus ? 1 : 0)
+          .on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
+          .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
+
+
+      labelAll2
+        .filter(function(d) { return d.parent === focus || this.style.display === "inline"; })
+        .transition(transition)
+          .style("fill-opacity", d => d.parent === focus ? 1 : 0)
+          .on("start", function(d) { if (d.parent === focus) this.style.display = "inline"; })
+          .on("end", function(d) { if (d.parent !== focus) this.style.display = "none"; });
+    }
+  } 
 
     /////////////////////////////////////////
     /////////// Env charts ////////////
@@ -606,187 +608,188 @@ if(diameter <450)
     /////////////////////////////////////////
     /////////// country charts //////////////
     /////////////////////////////////////////
+
+  function initiateVizTracker(){
         
+    y.domain([...new Set(alldata.map(d => d.Sector))].sort())
+
+    yAxis = d3.axisLeft(y)
+          .tickSize(-width);
+
+    yAxisEl = gCountry.append("g")
+      .attr("class", "y axis left")
+      //.attr("transform", "translate(0,"+0+")")
+
+    yAxisEl.call(yAxis)
+          .selectAll(".tick text")
+          .call(wrap, 0.65*(margin.left))
+
+    // Create node data.
+      var ref=width/2;
+      nodes = alldata.map(function(d,i) {	
+
+          let r2,x1;
+          if(d.Convert_to_USD_millions!=null)	{
+              r2= area(parseFloat(d.Convert_to_USD_millions));
+              x1=x(parseFloat(d.Convert_to_USD_millions));
+          }
+          else{
+              r2=minR-2;
+              x1=x(-0.015*highest)
+          }
+
+          if(d.Country!=couValue)	
+              r2=0;
+
+          return {
+              id: d.Identification_number,
+              x: x1 ,
+              y: y(d.Sector) ,
+              r: r2,
+              country: d.Country,
+              amount: d.Convert_to_USD_millions,
+              type:d.Type_of_measure,
+              scope: d.Scope,
+              impact: d.Env_impact_category,
+              sector: d.Sector,
+              summary: d.Summary_description,
+              infra: d.Infrastructure_relevant,
+              data: []
+          }
+
+      })
+
         
-	y.domain([...new Set(alldata.map(d => d.Sector))].sort())
+      Promise.all(nodes).then(render);
 
-	yAxis = d3.axisLeft(y)
-        .tickSize(-width);
+    //	render()
+    function render(){
+        // Forces
+      simulation = d3.forceSimulation(nodes)
+        //.force("cluster", forceCluster())
+        .force('charge', d3.forceManyBody().strength(0.01))
+        .force("x", d3.forceX(d => d.x))//.strength(strengthX))
+        .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
+        .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
+        //.alpha(.25)
+        //.alphaDecay(0.001);
+      
+      // Adjust position of circles.
+      simulation.on("tick", () => {    
+        circle
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y)
+          // .attr("fill", d => d.color);
+      });
 
-	yAxisEl = gCountry.append("g")
-		.attr("class", "y axis left")
-		//.attr("transform", "translate(0,"+0+")")
+      // Circle for each node.
+      circle = gCountry.append("g")
+        .selectAll("circle")
+        .data(nodes)
+        .join("circle")
+        .attr("id", d => "circle"+d.id)
+        .attr("cx", d => d.x)
+        .attr("cy", d => (y(d.sector)+y.bandwidth()/2)) //
+        .attr("fill", function(d) {
+                  //if(d.amount!=null)
+            return color(d.impact)//amountColor(parseFloat(d.amount));
+                  //else    
+                  //return "#aaa";
+        })
+        .attr("stroke", function(d) {
+                  if(d.amount==null)
+            return  "#000";})
+        .attr("stroke-width", function(d) {
+                  if(d.amount==null)
+            return  "2px";})
+              .attr("opacity",0.75);
+      
+      
+      // Ease in the circles.
+      circle.transition()
+        .delay((d,i) => i * 5)
+        .duration(200)
+        .attrTween("r", d => {
+          const i = d3.interpolate(0, d.r);
+          return t => d.r = i(t);
+        });
 
-	yAxisEl.call(yAxis)
-        .selectAll(".tick text")
-        .call(wrap, 0.65*(margin.left))
+      circle.on('mouseover', function (d) {
+          d3.select("#circle"+d.srcElement.__data__.id).style("opacity",0.4)
+          divCircle.transition()
+            .duration(250)
+            .style("opacity", 1);
+          
+          var htmlText;
+          if(d.srcElement.__data__.amount !=null)
+            htmlText = "<b>"+d.srcElement.__data__.country+"</b><br/><i> "+ d.srcElement.__data__.type+"</i><br/><br/>Amount: "+ format(d.srcElement.__data__.amount)+" millions of USD<br/>Impact: "+ d.srcElement.__data__.impact+"<br/><br/><b>"+ d.srcElement.__data__.sector +":</b> " + d.srcElement.__data__.summary + "";
+          else
+            htmlText = "<b>"+d.srcElement.__data__.country+"</b><br/><i> "+ d.srcElement.__data__.type+"</i><br/><br/>Impact: "+ d.srcElement.__data__.impact+"<br/><br/><b>"+ d.srcElement.__data__.sector +":</b> " + d.srcElement.__data__.summary + "";
+          
+          divCircle.html(htmlText)
+            .style("left", event.pageX - document.body.scrollLeft + "px")
+            .style("top", event.pageY /*- document.body.scrollTop*/ + "px");
+          })
+        
+        .on("mousemove", function (d) {
+          divCircle
+            .style("left", event.pageX - document.body.scrollLeft + 10 + "px")
+            .style("top", event.pageY + "px");
 
-  // Create node data.
-    var ref=width/2;
-    nodes = alldata.map(function(d,i) {	
+        })
+        .on('mouseout', function (d) {
+          d3.select("#circle"+d.srcElement.__data__.id).style("opacity",0.75)
+          divCircle.transition()
+            .duration(100)
+            .style("opacity", 0);
+        })
 
-        let r2,x1;
-        if(d.Convert_to_USD_millions!=null)	{
-			      r2= area(parseFloat(d.Convert_to_USD_millions));
-            x1=x(parseFloat(d.Convert_to_USD_millions));
-        }
-        else{
-            r2=minR-2;
-            x1=x(-0.015*highest)
-        }
+    }
 
-        if(d.Country!=couValue)	
-            r2=0;
+    gCountry.append("svg:image")
+      .attr('x', function(){
+        if(width<750)
+        return 0.4*width
+        else
+        return 0.9*width
+      })
+      .attr('y', height/2-25)
+      .attr('width', 40)
+      .attr("xlink:href", "img/arrow-right.svg")
 
-        return {
-            id: d.Identification_number,
-            x: x1 ,
-            y: y(d.Sector) ,
-            r: r2,
-            country: d.Country,
-			      amount: d.Convert_to_USD_millions,
-			      type:d.Type_of_measure,
-            scope: d.Scope,
-            impact: d.Env_impact_category,
-            sector: d.Sector,
-            summary: d.Summary_description,
-            infra: d.Infrastructure_relevant,
-			      data: []
-        }
+    gCountry.append("text")
+      //.attr("x", 0.05*width+30)
+      .attr('y', height/2)
+      .attr("x", function(){
+        if(width<750)
+        return 0.6*width
+        else
+        return 0.95*width
+      })
+      .attr("text-anchor", "start")
+      .style("font-weight",900)
+      .text("Higher spending")
 
-    })
 
       
-     Promise.all(nodes).then(render);
+      gCountry.append("text")
+      .attr("x",x(-0.015*highest)-20)
+      .attr("y",-8)
+      .attr("text-anchor", "start")
+      .style("font-weight",900)
+      .text("Unknown");
 
-	//	render()
-	function render(){
-  		// Forces
-		simulation = d3.forceSimulation(nodes)
-			//.force("cluster", forceCluster())
-      .force('charge', d3.forceManyBody().strength(0.01))
-			.force("x", d3.forceX(d => d.x))//.strength(strengthX))
-			.force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
-			.force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
-			//.alpha(.25)
-			//.alphaDecay(0.001);
-		
-		// Adjust position of circles.
-		simulation.on("tick", () => {    
-			circle
-				.attr("cx", d => d.x)
-				.attr("cy", d => d.y)
-				// .attr("fill", d => d.color);
-		});
-
-		// Circle for each node.
-		circle = gCountry.append("g")
-			.selectAll("circle")
-			.data(nodes)
-			.join("circle")
-			.attr("id", d => "circle"+d.id)
-			.attr("cx", d => d.x)
-			.attr("cy", d => (y(d.sector)+y.bandwidth()/2)) //
-			.attr("fill", function(d) {
-                //if(d.amount!=null)
-					return color(d.impact)//amountColor(parseFloat(d.amount));
-                //else    
-                //return "#aaa";
-			})
-			.attr("stroke", function(d) {
-                if(d.amount==null)
-					return  "#000";})
-			.attr("stroke-width", function(d) {
-                if(d.amount==null)
-					return  "2px";})
-            .attr("opacity",0.75);
-		
-		
-		// Ease in the circles.
-		circle.transition()
-			.delay((d,i) => i * 5)
-			.duration(200)
-			.attrTween("r", d => {
-				const i = d3.interpolate(0, d.r);
-				return t => d.r = i(t);
-			});
-
-		circle.on('mouseover', function (d) {
-				d3.select("#circle"+d.srcElement.__data__.id).style("opacity",0.4)
-				divCircle.transition()
-					.duration(250)
-					.style("opacity", 1);
-        
-        var htmlText;
-        if(d.srcElement.__data__.amount !=null)
-				  htmlText = "<b>"+d.srcElement.__data__.country+"</b><br/><i> "+ d.srcElement.__data__.type+"</i><br/><br/>Amount: "+ format(d.srcElement.__data__.amount)+" millions of USD<br/>Impact: "+ d.srcElement.__data__.impact+"<br/><br/><b>"+ d.srcElement.__data__.sector +":</b> " + d.srcElement.__data__.summary + "";
-        else
-          htmlText = "<b>"+d.srcElement.__data__.country+"</b><br/><i> "+ d.srcElement.__data__.type+"</i><br/><br/>Impact: "+ d.srcElement.__data__.impact+"<br/><br/><b>"+ d.srcElement.__data__.sector +":</b> " + d.srcElement.__data__.summary + "";
-        
-				divCircle.html(htmlText)
-					.style("left", event.pageX - document.body.scrollLeft + "px")
-					.style("top", event.pageY /*- document.body.scrollTop*/ + "px");
-				})
-			
-			.on("mousemove", function (d) {
-				divCircle
-					.style("left", event.pageX - document.body.scrollLeft + 10 + "px")
-					.style("top", event.pageY + "px");
-
-			})
-			.on('mouseout', function (d) {
-				d3.select("#circle"+d.srcElement.__data__.id).style("opacity",0.75)
-				divCircle.transition()
-					.duration(100)
-					.style("opacity", 0);
-			})
-
-  }
-
-  gCountry.append("svg:image")
-		.attr('x', function(){
-			if(width<750)
-			 return 0.4*width
-			else
-			 return 0.9*width
-		})
-		.attr('y', height/2-25)
-		.attr('width', 40)
-		.attr("xlink:href", "img/arrow-right.svg")
-
-	gCountry.append("text")
-		//.attr("x", 0.05*width+30)
-		.attr('y', height/2)
-		.attr("x", function(){
-			if(width<750)
-			 return 0.6*width
-			else
-			 return 0.95*width
-		})
-		.attr("text-anchor", "start")
-		.style("font-weight",900)
-		.text("Higher spending")
-
-
-    
     gCountry.append("text")
-    .attr("x",x(-0.015*highest)-20)
-    .attr("y",-8)
-		.attr("text-anchor", "start")
-		.style("font-weight",900)
-    .text("Unknown");
-
-  gCountry.append("text")
-    .attr("x",x(-0.015*highest)-20)
-    .attr("y",5)
-		.style("font-weight",900)
-		.attr("text-anchor", "start")
-    .text("spending")
-    //gCountry.attr("opacity",0)
+      .attr("x",x(-0.015*highest)-20)
+      .attr("y",5)
+      .style("font-weight",900)
+      .attr("text-anchor", "start")
+      .text("spending")
+      //gCountry.attr("opacity",0)
 
 
-    gCountry.attr("display","none")
-}
+      gCountry.attr("display","none")
+  }
 
 /*function updateAllView(value){
   buttonEnvValue=value;
@@ -863,7 +866,7 @@ function updateViz(value){
                 
                   simulation
                   .force('charge', d3.forceManyBody().strength(0.01))
-                      .force("x", d3.forceX(d => d.x))//.strength(strengthX))
+                     // .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
             .alpha(.25)
@@ -881,7 +884,7 @@ function updateViz(value){
                 
                   simulation
                   .force('charge', d3.forceManyBody().strength(0.01))
-                      .force("x", d3.forceX(d => d.x))//.strength(strengthX))
+              //        .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.type)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
             .alpha(.25)
@@ -900,7 +903,7 @@ function updateViz(value){
                 
                   simulation
                   .force('charge', d3.forceManyBody().strength(0.01))
-                      .force("x", d3.forceX(d => d.x))//.strength(strengthX))
+                      //.force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.impact)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
             .alpha(.25)
@@ -974,7 +977,7 @@ function updateCouViz(value){
                 
                   simulation
                   .force('charge', d3.forceManyBody().strength(0.01))
-                      .force("x", d3.forceX(d => d.x))//.strength(strengthX))
+                     // .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.sector)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
             .alpha(.25)
@@ -992,7 +995,7 @@ function updateCouViz(value){
                 
                   simulation
                   .force('charge', d3.forceManyBody().strength(0.01))
-                      .force("x", d3.forceX(d => d.x))//.strength(strengthX))
+                     // .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.type)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
             .alpha(.25)
@@ -1010,7 +1013,7 @@ function updateCouViz(value){
                 
                   simulation
                   .force('charge', d3.forceManyBody().strength(0.01))
-                      .force("x", d3.forceX(d => d.x))//.strength(strengthX))
+                    //  .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.scope)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
             .alpha(.25)
@@ -1028,7 +1031,7 @@ function updateCouViz(value){
                 
                   simulation
                   .force('charge', d3.forceManyBody().strength(0.01))
-                      .force("x", d3.forceX(d => d.x))//.strength(strengthX))
+                    //  .force("x", d3.forceX(d => d.x))//.strength(strengthX))
                       .force("y", d3.forceY(d => (y(d.impact)+y.bandwidth()/2)))//.strength(strengthY))
                       .force("collision", d3.forceCollide().radius(d => d.r + padding + 0.1))
             .alpha(.25)
