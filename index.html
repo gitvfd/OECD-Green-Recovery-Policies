@@ -220,9 +220,10 @@ function initiateCirclePackCountryChart(){
           else
               diameter=width;
     
-    
-  if(diameter <450)
+  if(parseInt(d3.select('#chart').style('width'), 10)*0.95<height)
     diameter=parseInt(d3.select('#chart').style('width'), 10)*0.95;
+  //if(diameter <450)
+    //diameter=parseInt(d3.select('#chart').style('width'), 10)*0.95;
           
     
     const pack = data => d3.pack()
