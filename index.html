@@ -1078,7 +1078,7 @@ function setDropdown(){
 
 				divCircle.html(htmlText)
 					.style("left", event.pageX - document.body.scrollLeft + "px")
-					.style("top", event.pageY /*- document.body.scrollTop*/ + "px");
+					.style("top", event.pageY /*- document.body.scrollTop*/ +30+ "px");
 				})
 			.on('mouseout', function (d) {
         d3.select(this).style("opacity",1)
