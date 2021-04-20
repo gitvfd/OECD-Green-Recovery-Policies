@@ -21,7 +21,7 @@
 		</div>
 	</div>
 	<!--<div id=intro><b>Explore the environmental implications of announced recovery measures in responses to the COVID-19 crisis! </div>-->
-	<div id="legend">The impact of policies on the environment is illustrated by the following colours: <span  class="dot positive"></span> positive, <span  class="dot negative"></span> negative, or <span  class="dot mixed"></span> mixed impact.</div>
+	<div id="legend">The impact of policies on the environment is illustrated by the following colours: <span id="positivelegend" class="dot positive"></span> positive, <span id="negativelegend" class="dot negative"></span> negative, or <span id="mixedlegend" class="dot mixed"></span> mixed impact.</div>
 	<div id="selCountry">
 			<select id="country_dropdown" onchange="updateCouViz(value)"> 
 				
@@ -1058,6 +1058,36 @@ function setDropdown(){
 	
 	})
 }
+
+		d3.selectAll(".dot").on('mouseover', function (d) { 
+        d3.select(this).style("opacity",0.4)
+			
+        divCircle.transition()
+					.duration(250)
+					.style("opacity", 1);
+        
+      var htmlText; 
+      
+
+      if(this.id=="positivelegend")
+        htmlText="The measure has clearly discernible positive environmental impact for one or more environmental dimensions, without any clearly discernible significant negative impacts on other environmental dimensions."
+      if(this.id=="negativelegend")
+        htmlText="The measure has clearly discernible negative impacts on one or more environmental dimensions, without any clear positive environmental impacts."
+      if(this.id=="mixedlegend")
+        htmlText="Both positive and negative environmental impacts are clearly discernible. This can happen either i) where the measure has clear positive environmental benefit on one dimension, but has clearly significantly negative impacts on at least one other dimension;  or ii) where the measure is very broad and contains some elements that will have strong positive implications but other elements that are likely to have clear negative implications (whether for the same environmental dimension or another)"
+
+				divCircle.html(htmlText)
+					.style("left", event.pageX - document.body.scrollLeft + "px")
+					.style("top", event.pageY /*- document.body.scrollTop*/ + "px");
+				})
+			.on('mouseout', function (d) {
+        d3.select(this).style("opacity",1)
+			
+        divCircle.transition()
+					.duration(100)
+					.style("opacity", 0);
+			})
+
 
 d3.selectAll(".button.grey")
     .on("click", function () {
