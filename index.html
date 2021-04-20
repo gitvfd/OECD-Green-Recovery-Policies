@@ -625,7 +625,6 @@ function initiateViz(){
             r2=minR-2;
             x1=x(-0.015*highest)
         }
-			
 
         if(d.Country!=couValue)	
             r2=0;
@@ -649,7 +648,7 @@ function initiateViz(){
     })
 
       
-      render();
+     Promise.all(nodes).then(render);
 
 	//	render()
 	function render(){
