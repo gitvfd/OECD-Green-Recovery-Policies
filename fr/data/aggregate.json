@@ -1,0 +1,49 @@
+{"name":"Dépenses  de relance post-COVID-19","value":"1950",
+    "children":
+    [
+                {"name":"Incidence positive","value":"336",
+
+                    "children":[
+                        {"name":"Énergie","value":"88.344841590736"},
+                        {"name":"Aviation","value":"1.42233183948628"},
+                        {"name":"Transport terrestre","value":"80.6869269009155"},
+                        {"name":"Transport maritime","value":"1.51136019656202"},
+                        {"name":"Industrie lourde","value":"11.5759135396853"},
+                        {"name":"Bâtiment","value":"30.0474739693616"},
+                        {"name":"Agriculture","value":"11.3183210436983"},
+                        {"name":"Sylviculture","value":"2.26257157300639"},
+                        {"name":"Gestion des déchets","value":"2.01571395687582"},
+                        {"name":"Autres","value":"106.686320203595"}
+                    ]
+                },{"name":"Incidence négative & mitigée","value":"334",
+                "children":[
+                    {"name":"Incidence négative","value":"177",
+                    "children":[
+                        {"name":"Énergie","value":"38.1620248776992"},
+                        {"name":"Aviation","value":"93.3075360688155"},
+                        {"name":"Transport terrestre","value":"7.47822663696037"},
+                        {"name":"Transport maritime","value":"0.0273461897386399"},
+                        {"name":"Industrie lourde","value":"37.5133038173356"},
+                        {"name":"Bâtiment","value":"0"},
+                        {"name":"Agriculture","value":"0"},
+                        {"name":"Sylviculture","value":"0"},
+                        {"name":"Gestion des déchets","value":"0"},
+                        {"name":"Autres","value":"0.547328754972113"}
+                    ]},
+                    {"name":"Incidence mitigée","value":"157",
+                        "children":[
+                            {"name":"Énergie","value":"18.1871364928465"},
+                            {"name":"Aviation","value":"11.2472231989567"},
+                            {"name":"Transport terrestre","value":"26.214053061683"},
+                            {"name":"Transport maritime","value":"0.0228803805272894"},
+                            {"name":"Industrie lourde","value":"0.0110266894107419"},
+                            {"name":"Bâtiment","value":"10.0031165482117"},
+                            {"name":"Agriculture","value":"1.96756509781651"},
+                            {"name":"Sylviculture","value":"0.0229039511730871"},
+                            {"name":"Gestion des déchets","value":"0"},
+                            {"name":"Autres","value":"89.0724836550443"}
+                    ]}
+                ]
+            
+        },
+    {"name":"Dépenses  de relance post-COVID-19","value":"1950"}]}
